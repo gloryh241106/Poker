@@ -1,5 +1,6 @@
 //Using SDL and standard IO
-#if _WIN32
+//https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #include <SDL.h>
 #elif __linux__
     #include <SDL2/SDL.h>
