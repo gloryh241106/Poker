@@ -10,7 +10,6 @@
 ### HandType
 Dùng để phân loại tay bài của người chơi, đồng thời để ghi lại thông số về chiến thuật.
 #### Đối với Poker:
-- (nếu có lá joker)`FiveOfAKind`: tứ quý và 1 lá joker
 - `StraightFlush`: sảnh 5, đồng chất
 - `FourOfAKind`: tứ quý
 - `FullHouse`: 1 đôi, 1 ba
