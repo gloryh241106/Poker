@@ -63,7 +63,7 @@ public:
         // Seed the random number generator
         std::mt19937 rng(static_cast<unsigned int>(std::time(0)));
 
-        // Shuffle the deck
+        // Shuffle the deck - Shuffle 3 times for better randomize =))
         std::shuffle(deck.begin(), deck.end(), rng);
         std::shuffle(deck.begin(), deck.end(), rng);
         std::shuffle(deck.begin(), deck.end(), rng);
