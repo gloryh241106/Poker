@@ -8,16 +8,16 @@
 #include "Engine_Card_Deck.h"
 #include "Engine_Init_Poker.h"
 
-/*  Order of poker hands' strength
-    1. Straight Flush (Checking by isFlush and isStraight)
-    2. Four of a kind (Use function has_N_kind(std::map<int, int> &rankCount, 4) for checking)
-    3. Full house (Use function hasFullHouse(std::map<int, int> &rankCount))
-    4. Flush (Checking by isFlush)
+/*  Order of poker hands' strength (Ascending)
+    1. High card
+    2. One pair
+    3. Two pair (Use function hasTwoPairs(std::map<int, int> &rankCount))
+    4. Three of a kind (Use function has_N_kind(std::map<int, int> &rankCount, 3))
     5. Straight (Checking by isStraight)
-    6. Three of a kind (Use function has_N_kind(std::map<int, int> &rankCount, 3))
-    7. Two pair (Use function hasTwoPairs(std::map<int, int> &rankCount))
-    8. One pair
-    9. High card
+    6. Flush (Checking by isFlush)
+    7. Full house (Use function hasFullHouse(std::map<int, int> &rankCount))
+    8. Four of a kind (Use function has_N_kind(std::map<int, int> &rankCount, 4) for checking)
+    9. Straight Flush (Checking by isFlush and isStraight)
 */
 
 // Initialize a vector for storing result 
