@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <vector>
 #include <ctime>
+#include <iostream>
+#include <random>
 
 // Enum for Suit
 enum Suit {
