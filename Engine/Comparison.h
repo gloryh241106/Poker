@@ -1,31 +1,33 @@
-#ifndef __ENGINE_POKER_COMPARISON__
-#define __ENGINE_POKER_COMPARISON__
+#ifndef __ENGINE_COMPARISON__
+#define __ENGINE_COMPARISON__
 
 #include <algorithm>
 #include <map>
 #include <vector>
 #include <iostream>
-#include "Engine_Card_Deck.h"
-#include "Engine_Init_Poker.h"
+#include "Card.h"
+#include "PokerEngine.h"
 
-/*  Order of poker hands' strength (Ascending)
-    1. High card
-    2. One pair
-    3. Two pair (Use function hasTwoPairs(std::map<int, int> &rankCount))
-    4. Three of a kind (Use function has_N_kind(std::map<int, int> &rankCount, 3))
-    5. Straight (Checking by isStraight)
-    6. Flush (Checking by isFlush)
-    7. Full house (Use function hasFullHouse(std::map<int, int> &rankCount))
-    8. Four of a kind (Use function has_N_kind(std::map<int, int> &rankCount, 4) for checking)
-    9. Straight Flush (Checking by isFlush and isStraight)
-*/
+// Enum for representing HandType
 
-// Initialize a vector for storing result 
+enum HandType{
+    HIGH_CARD = 1,
+    ONE_PAIR,
+    TWO_PAIR,
+    THREE_OF_A_KIND,
+    STRAIGHT,
+    FLUSH,
+    FULL_HOUSE,
+    FOUR_OF_A_KIND,
+    STRAIGHT_FLUSH
+};
+
+// Vector for storing result 
 std::vector<int> rankValues;
 
 //Counting how many times each rank appers in hands
 std::map<int, int> getRankCounts(std::vector<Card> &hands) {
-    // Initialize a map counting each rank appears
+    // Map for storing each rank appears
     std::map<int, int> rankCount;
 
     // Counting
@@ -38,7 +40,7 @@ std::map<int, int> getRankCounts(std::vector<Card> &hands) {
 }
 
 bool isFlushHand(std::vector<Card> &hands) {
-    // Assign the first suit
+    // The first suit
     int firstSuit = hands[0].suit;
 
     // Checking if hands is not Flush
@@ -66,7 +68,7 @@ bool isStraightHand(std::vector<Card> &hands) {
 
 // Checking if the hand has N of a kind (N = 4, N = 3)
 bool has_N_Kind(std::map<int, int> &rankCount, int n) {
-    // Initialize a temporary map iterator
+    // Temporary map iterator
     std::map<int, int>::iterator temp;    
 
     // Checking each element using temp
@@ -81,7 +83,7 @@ bool has_N_Kind(std::map<int, int> &rankCount, int n) {
 
 // Add rank values for hands with N of a kind if there are N of a kind
 void addRankValuesForNOfAKind(std::map<int, int> &rankCount, int n) {
-    // Initialize temporarity map
+    // Temporary map
     std::map<int, int>::iterator temp;
 
     // Add Rank value if temp->second (which is the number of cards) is equal to n
@@ -97,10 +99,9 @@ void addRankValuesForNOfAKind(std::map<int, int> &rankCount, int n) {
 //-------------------- Full House -----------------------------------
 
 bool hasFullHouse(std::map<int, int> &rankCount) {
-    // Initialize three and two
     bool three = false, two = false;
 
-    // Checking if there are two and three
+    // Temporary iterator
     std::map<int, int>::iterator temp;
     for (temp = rankCount.begin(); temp != rankCount.end(); temp++) {
         // Checking three
@@ -118,7 +119,7 @@ bool hasFullHouse(std::map<int, int> &rankCount) {
 
 // Add rank values for full house (three of a kind + pair) if there are full house
 void addRankValuesForFullHouse(std::map<int, int> &rankCount) {
-    // Initialize temporarity map
+    // Temporary iterator
     std::map<int, int>::iterator temp;
 
     for (temp = rankCount.begin(); temp != rankCount.end(); temp++) {
@@ -134,7 +135,7 @@ void addRankValuesForFullHouse(std::map<int, int> &rankCount) {
 
 // Check if the hand has two pairs
 bool hasTwoPairs(std::map<int, int> &rankCount) {
-    // Initialize pairCount for checking 
+    // Int pairCount for checking 
     int pairCount = 0;
 
     // Counting pairs in hand
@@ -170,5 +171,8 @@ void addRankValuesForTwoPairs(std::map<int, int> &rankCount) {
     rankValues.insert(rankValues.end(), pairs.begin(), pairs.end());
     rankValues.push_back(otherCard);
 }
+
+// Nguyên sẽ làm phần so sánh bài Xì dách
+//...
 
 #endif
