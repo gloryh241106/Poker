@@ -32,8 +32,8 @@ class Player {
         int ranking_match;
         std::vector<int> rankValues;
 
-        void getCard() {
-            for (int i = 0; i < 5; i++) {
+        void getCard(int n) {
+            for (int i = 0; i < n; i++) {
                 player_hands.push_back(deck.dealCard());
             }
         }
@@ -41,7 +41,7 @@ class Player {
         void displayHand() {
             std::cout << "Your hand: " << std::endl;
             for (auto card : player_hands) {
-                card.print();
+                std::cout << card.to_string() << std::endl;
             }
         }
 

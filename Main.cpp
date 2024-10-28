@@ -16,7 +16,7 @@ int main() {
     Player player1;
 
     // Draw 5 card
-    player1.getCard();
+    player1.getCard(5);
 
     // Print the cards
     player1.displayHand();

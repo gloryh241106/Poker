@@ -37,10 +37,9 @@ struct Card {
     Rank rank;
     Suit suit;
 
-    void print() {
-        std::string rank_str[] = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
-        std::string suit_str[] = {"Spades", "Clubs", "Diamond", "Hearts"};
-        std::cout << rank_str[rank - 2] << " of " << suit_str[suit] << std::endl;
+    std::string to_string() {
+        std::string suit_str[] = {"s", "c", "d", "h"};
+        return std::to_string(rank) + suit_str[suit];
     }
 };
 
