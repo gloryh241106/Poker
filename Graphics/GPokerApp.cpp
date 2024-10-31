@@ -1,7 +1,8 @@
 
-#include "PokerApp.h"
+#include "GPokerApp.h"
+#include "GCard.h"
 
-PokerApp::PokerApp()
+GPokerApp::GPokerApp()
 {
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -32,16 +33,6 @@ PokerApp::PokerApp()
 		return;
 	}
 
-	// // Create main surface
-	// m_window_surface = SDL_GetWindowSurface(m_window);
-
-	// if (!m_window_surface)
-	// {
-	// 	std::cout << "Failed to get window's surface\n";
-	// 	std::cout << "SDL2 Error: " << SDL_GetError() << "\n";
-	// 	return;
-	// }
-
 	// Create renderer
 	m_window_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
 
@@ -52,41 +43,29 @@ PokerApp::PokerApp()
 		return;
 	}
 
-	card_surface = IMG_Load("Assets/Cards/2s.png");
-	if (!card_surface)
+	for (int i = 0; i < 10; i++)
 	{
-		std::cout << "Failed to create card_suface\n";
-		return;
+		card[i].texture = IMG_LoadTexture(m_window_renderer, "Assets/Cards/3s.png");
+		card[i].dx = i % 2 + 1;
+		card[i].dy = i % 3 + 1;
 	}
-	card_texture = SDL_CreateTextureFromSurface(m_window_renderer, card_surface);
-	if (!card_texture)
-	{
-		std::cout << "Failed to create card_texture\n";
-		return;
-	}
-	SDL_FreeSurface(card_surface);
-
-	// Define card rects
-	card_pos.h = 124; // 124;
-	card_pos.w = 88;  // 88;
-	card_pos.x = 0;
-	card_pos.y = 0;
-	card_view.h = 124; // 124;
-	card_view.w = 88;  // 88;
-	card_view.x = 0;
-	card_view.y = 0;
 }
 
-PokerApp::~PokerApp()
+GPokerApp::~GPokerApp()
 {
-	SDL_DestroyTexture(card_texture);
+	// card.~GCard();
 	SDL_DestroyRenderer(m_window_renderer);
 	SDL_DestroyWindow(m_window);
 	IMG_Quit();
 	SDL_Quit();
 }
 
-void PokerApp::update()
+bool coordInRect(int x, int y, SDL_Rect rect)
+{
+	return (rect.x <= x && rect.x + rect.w >= x && rect.y <= y && rect.y + rect.h >= y);
+}
+
+void GPokerApp::update()
 {
 	bool keep_window_open = true;
 	while (keep_window_open)
@@ -98,6 +77,22 @@ void PokerApp::update()
 			case SDL_QUIT:
 				keep_window_open = false;
 				break;
+			case SDL_MOUSEBUTTONDOWN:
+				if (m_window_event.button.button == SDL_BUTTON_LEFT)
+				{
+					for (int i = 0; i < 10; i++)
+					{
+						int mouseX = 0, mouseY = 0;
+						SDL_GetMouseState(&mouseX, &mouseY);
+						if (coordInRect(mouseX, mouseY, card[i].dstRect))
+						{
+							card[i].texture = IMG_LoadTexture(m_window_renderer, "Assets/Cards/2d.png");
+							card[i].dx = -card[i].dx;
+							card[i].dy = -card[i].dy;
+							break;
+						}
+					}
+				}
 			}
 		}
 
@@ -105,25 +100,24 @@ void PokerApp::update()
 	}
 }
 
-void PokerApp::draw()
+void GPokerApp::draw()
 {
-	card_pos.x += dx;
-	card_pos.y += dy;
-	if (card_pos.x == 0 || card_pos.x + card_pos.w == WINDOW_WIDTH)
-		dx = -dx;
-	if (card_pos.y == 0 || card_pos.y + card_pos.h == WINDOW_HEIGHT)
-		dy = -dy;
-
-	// Draw to the back buffer
+	// Draw background
 	SDL_SetRenderDrawColor(m_window_renderer, 0x04, 0x80, 0x40, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(m_window_renderer);
-	SDL_SetRenderDrawColor(m_window_renderer, 0xff, 0x00, 0x00, SDL_ALPHA_OPAQUE);
-	SDL_RenderFillRect(m_window_renderer, &card_pos);
 
 	// Draw card
-	SDL_RenderCopy(m_window_renderer, card_texture, NULL, &card_pos);
-	// SDL_RenderFillRect(m_window_renderer, &card_pos);
-
+	// card.draw();
+	for (int i = 0; i < 10; i++)
+	{
+		card[i].dstRect.x += card[i].dx;
+		card[i].dstRect.y += card[i].dy;
+		if (card[i].dstRect.x == 0 || card[i].dstRect.x + card[i].CARD_WIDTH >= WINDOW_WIDTH)
+			card[i].dx = -card[i].dx;
+		if (card[i].dstRect.y == 0 || card[i].dstRect.y + card[i].CARD_HEIGHT >= WINDOW_HEIGHT)
+			card[i].dy = -card[i].dy;
+		SDL_RenderCopy(m_window_renderer, card[i].texture, NULL, &card[i].dstRect);
+	}
 	// Display image on the screen
 	SDL_RenderPresent(m_window_renderer);
 }
