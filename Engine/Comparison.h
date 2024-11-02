@@ -8,20 +8,6 @@
 #include "Card_Deck.h"
 #include "PokerEngine.h"
 
-// Enum for representing HandType
-
-enum HandType{
-    HIGH_CARD = 1,
-    ONE_PAIR,
-    TWO_PAIR,
-    THREE_OF_A_KIND,
-    STRAIGHT,
-    FLUSH,
-    FULL_HOUSE,
-    FOUR_OF_A_KIND,
-    STRAIGHT_FLUSH
-};
-
 // Vector for storing result 
 std::vector<int> rankValues;
 
@@ -151,13 +137,13 @@ bool hasTwoPairs(std::map<int, int> &rankCount) {
 
 // Add rank values for two pair if there are 2 pairs
 void addRankValuesForTwoPairs(std::map<int, int> &rankCount) {
-    // Initialize a vector for storing pairs
+    // A vector for storing pairs
     std::vector<int> pairs;
 
-    // Initialize an integer for storing the card (Use for High Card)
+    // Integer for storing the card (Use for High Card)
     int otherCard = 0;
 
-    // Initialize temporarity map
+    // Temporarity map
     std::map<int, int>::iterator temp;
 
     // Checking and adding to vector
@@ -172,7 +158,95 @@ void addRankValuesForTwoPairs(std::map<int, int> &rankCount) {
     rankValues.push_back(otherCard);
 }
 
-// Nguyên sẽ làm phần so sánh bài Xì dách
-//...
+void reset_rankValues(std::vector<int> &rankValues) {
+    rankValues.clear();
+}
+
+void reset_rankCount(std::map<int, int> &rankCount) {
+    rankCount.clear();
+}
+
+//_________________BLACK JACK _______________________
+
+struct Result {
+    int Error = -1;
+    int Upper_Case = 0;
+    int NguLinh = 22;
+    int Black_Jack = 23;
+    int Pair_Aces = 24;
+};
+
+const Result result;
+
+int Last_Hope(int& temp, int idx, int arr[]) {
+    if (idx == -1) return temp;
+    if (temp > 21) {
+        temp -= arr[idx];
+        idx--;
+        temp += arr[idx];
+        Last_Hope(temp, idx, arr);
+    }
+    return temp;
+}
+
+// Ham truyen vao Vector chua cac la bai va return lai gia tri so sanh (Cu the coi struct).
+int Calculate_Hands_Value(std::vector<char> hand) {
+    int Hand_Value = 0;
+    int Count_Ace = 0;
+    int Ace_Value[3] = { 1, 10, 11 };
+
+    for (auto idx : hand) { 
+        // In case Value {10, J, Q, K}
+        if (idx == 'T' || idx == 'J' || idx == 'Q' || idx == 'K') 
+            Hand_Value += 10;
+        // In case Value {A}
+        else if (idx == 'A') { 
+            if (Count_Ace == 0) {
+                Hand_Value += 11;
+                Count_Ace++;
+            } else {
+                Hand_Value += 1;
+                Count_Ace++;
+            }
+        } else {  //In case Value 1->9      
+            int Value = static_cast<int>(idx);
+            if (hand.size() >= 2 && Value >= 49 && Value <= 57)
+                Hand_Value = Hand_Value + (Value - 48);
+        }
+    }
+
+    // If has more than 2 Ace cards
+    if (Count_Ace >= 2) 
+        Hand_Value -= 10;
+
+    // Special cases
+    if (hand.size() == 2) { 
+        if (Hand_Value == 21) 
+            return result.Black_Jack;
+        if (Count_Ace == 2)
+            return result.Pair_Aces;
+    }
+    if (hand.size() == 5 && Hand_Value <= 21)
+        return result.NguLinh;
+
+    // Recalculate the Value of hand that has Ace
+    if (Hand_Value > 21 && Count_Ace == 1 && hand.size() <= 3)
+        Last_Hope(Hand_Value, 2, Ace_Value);
+
+    // Normal Hand_Value case
+    if (Hand_Value >= 16 && Hand_Value <= 21)
+        return Hand_Value;
+
+   // In case Hand_Value is higher than 21
+    if (Hand_Value > 21 && Hand_Value < 28)
+        return result.Upper_Case;
+
+    // In case Hand_Value is smaller than 16
+    if (Hand_Value < 16 || Hand_Value >= 28)
+        return result.Error;
+
+    return -2;
+}
+
 
 #endif

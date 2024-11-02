@@ -43,6 +43,12 @@ struct Card {
         std::string suit_str[] = {"s", "c", "d", "h"};
         return std::to_string(rank) + suit_str[suit];
     }
+
+    bool operator < (const Card& other) const {
+        if (rank == other.rank)
+            return suit < other.suit;  // Sort by suit if ranks are equal
+        return rank < other.rank;      // Sort by rank primarily
+    }
 };
 
 std::vector<Card> deck;

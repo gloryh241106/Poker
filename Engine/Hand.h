@@ -8,8 +8,11 @@
 #include "Comparison.h"
 
 struct Hand {
+    int player_index;
     std::vector<Card> cards;
     int type;
+    
+    Card highest_card_type;
     int ranking_match;
 
     bool concat(Card &card) {
@@ -31,20 +34,6 @@ struct Hand {
         return hand_string;
     }
 
-    void sort(int n){
-        for (int i = 0; i < n - 1; i++) {
-            int min_index = i;
-
-            for (int j = i + 1; j < n; j++) {
-                if (cards[min_index].rank >= cards[j].rank) 
-                    if (cards[min_index].suit > cards[j].suit) 
-                        min_index = j;
-            }
-
-            std::swap (cards[i], cards[min_index]);
-        }
-    }
-
     void deal(int n) {
         for (int i = 0; i < n; i++) {
             Card temp = deck.back();
@@ -52,7 +41,7 @@ struct Hand {
             deck.pop_back();
         }
 
-        sort(n);
+        std::sort(cards.begin(), cards.end());
     }
 };
 

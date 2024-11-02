@@ -4,22 +4,25 @@
 
 int main() {
     std::cout << "Welcome to Poker!" << std::endl;
+
     initDeck(deck);
-    Hand player1;
-    Hand player2;
 
-    player1.deal(5);
-    player2.deal(5);
+    int n;
+    std::cout << "How much player do you want: ";
+    std::cin >> n;
 
-    player1.toString();
-    std::cout << std::endl;
-    player2.toString();
-    std::cout << std::endl;
+    std::vector<Hand> players(n);
+    divide_cards(players, n);
+    for (int i = 0; i < n; i++) {
+        std::cout << "Player " << i + 1 << " : ";
+        for (auto card : players[i].cards) {
+            std::cout << card.to_string() << " ";
+        }
+        std::cout << std::endl;
+    }
 
-    player1.type = evaluateHand(player1);
-    player2.type = evaluateHand(player2);
-    std::cout << player1.type << std::endl;
-    std::cout << player2.type << std::endl;
-
+    setRankingMatch(players);
+    displayLeaderboard(players);
+    
     return 0;
 }
