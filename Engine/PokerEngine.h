@@ -10,11 +10,21 @@
 #include <random>
 #include <algorithm>
 
-void divide_cards(std::vector<Hand> &players, int n) {
+void divideCards(std::vector<Hand> &players, int n) {
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < n; j++) {
             players[j].deal(1);
         }
+    }
+}
+
+void displayHands (std::vector<Hand> &players, int n) {
+    for (int i = 0; i < n; i++) {
+        std::cout << "Player " << i + 1 << " : ";
+        for (auto card : players[i].cards) {
+            std::cout << card.to_string() << " ";
+        }
+        std::cout << std::endl;
     }
 }
 

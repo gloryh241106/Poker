@@ -12,15 +12,8 @@ int main() {
     std::cin >> n;
 
     std::vector<Hand> players(n);
-    divide_cards(players, n);
-    for (int i = 0; i < n; i++) {
-        std::cout << "Player " << i + 1 << " : ";
-        for (auto card : players[i].cards) {
-            std::cout << card.to_string() << " ";
-        }
-        std::cout << std::endl;
-    }
-
+    divideCards(players, n);
+    displayHands(players, n);
     setRankingMatch(players);
     displayLeaderboard(players);
     
