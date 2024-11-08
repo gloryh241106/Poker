@@ -35,3 +35,8 @@ Makefile
 # Ignore compiled Python files
 __pycache__/
 *.pyc
+
+# Ignore tests
+/Tests/
+
+/AN/
