@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "Random.h"
+
 // Enum for Suit
 enum Suit { SPADES = 0, CLUBS, DIAMONDS, HEARTS };
 
@@ -45,17 +47,45 @@ std::string cardToString(int card) {
     return rankStringLookup[rank] + suitStringLookup[suit];
 }
 
-std::vector<int> generateDeck(unsigned int seed = 0) {
-    // Generate a 52 cards deck
-    std::vector<int> deck(52, 0);
-    for (int i = 0; i < 52; i++) {
-        deck[i] = i;
+// std::vector<int> generateDeck(unsigned int seed = 0) {
+//     // Generate a 52 cards deck
+//     std::vector<int> deck(52, 0);
+//     for (int i = 0; i < 52; i++) {
+//         deck[i] = i;
+//     }
+//     // Shuffle the deck
+//     std::shuffle(deck.begin(), deck.end(), globalRNG);
+//     return deck;
+// }
+
+class Deck {
+   private:
+    int deck[52];
+    int deckTop = 51;
+
+   public:
+    Deck() {
+        for (int i = 0; i < 52; i++) {
+            deck[i] = i;
+        }
+        // Shuffle the deck
+        std::shuffle(deck, deck + 52, globalRNG);
     }
-    // Shuffle the deck
-    std::mt19937 rng(seed == 0 ? static_cast<unsigned int>(std::time(0))
-                               : seed);
-    std::shuffle(deck.begin(), deck.end(), rng);
-    return deck;
-}
+
+    // Deal a card from the top of the deck
+    int top() {
+        if (deckTop < 0) return -1;
+        return deck[deckTop];
+    }
+
+    void pop() { deckTop--; }
+
+    // Generate a new deck
+    void newDeck() {
+        // Shuffle the deck
+        std::shuffle(deck, deck + 52, globalRNG);
+        deckTop = 51;
+    }
+};
 
 #endif

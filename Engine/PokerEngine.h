@@ -8,215 +8,126 @@
 
 #include "Card.h"
 #include "Hand.h"
-#include "Read_UserData.h"
 
-// struct PokerEngine {
-//     std::vector<int> deck = generateDeck();
-//     int deal() {
-//         if (deck.size() == 0) return -1;
-//         int t = deck.back();
-//         deck.pop_back();
-//         return t;
-//     }
-//     void init() { deck = generateDeck(); }
-// };
+// d ss.    sSSSs   d     S d sss   d ss.
+// S    b  S     S  S    P  S       S    b
+// S    P S       S Ssss'   S       S    P
+// S sS'  S       S S   s   S sSSs  S sS'
+// S      S       S S    b  S       S   S
+// S       S     S  S     b S       S    S
+// P        "sss"   P     P P sSSss P    P
 
-// void divideCards(std::vector<Hand> &players, int n) {
-//     for (int i = 0; i < 5; i++) {
-//         for (int j = 0; j < n; j++) {
-//             players[j].deal(1);
-//         }
-//     }
-// }
+// Here are functions that check the type of a poker hand.
+// These functions should only be called with hands' size 5
 
-// void displayHands(std::vector<Hand> &players, int n) {
-//     for (int i = 0; i < n; i++) {
-//         std::cout << "Player " << i + 1 << " : ";
-//         for (auto card : players[i].cards) {
-//             std::cout << card.to_string() << " ";
-//         }
-//         std::cout << std::endl;
-//     }
-// }
+namespace PokerEngine {
 
-// // Enum for representing Hand type
-// enum HandType {
-//     HIGH_CARD = 1,
-//     ONE_PAIR,
-//     TWO_PAIR,
-//     THREE_OF_A_KIND,
-//     STRAIGHT,
-//     FLUSH,
-//     FULL_HOUSE,
-//     FOUR_OF_A_KIND,
-//     STRAIGHT_FLUSH
-// };
+// Check if hand is a flush (five cards with same suit)
+bool isFlush(const Hand& hand) {
+    // If hand doesn't have 5 cards
+    if (hand.size < 5) return false;
+    int firstSuit = getCardSuit(hand.cards[0]);
+    for (int i = 1; i < hand.size; i++) {
+        if (getCardSuit(hand.cards[i]) != firstSuit) return false;
+    }
+    return true;
+}
 
-// // Evaluate hand type
-// int evaluateHand(Hand &hand) {
-//     HandType hand_rank_type;
-//     bool isFlush = isFlushHand(hand.cards);
-//     bool isStraight = isStraightHand(hand.cards);
-//     std::map<int, int> rankCount = getRankCounts(hand.cards);
-//     int highest_card_rank = 0;
-//     int highest_card_suit = 0;
+// Check if hand is a straight (five cards with increasing rank)
+bool isStraight(const Hand& hand) {
+    // If hand doesn't have 5 cards
+    if (hand.size < 5) return false;
+    for (int i = 1; i < hand.size; i++) {
+        if (getCardRank(hand.cards[i]) != (getCardRank(hand.cards[i - 1]) + 1))
+            return false;
+    }
+    return true;
+}
 
-//     // Determine the hand type based on the ranking rules
-//     if (isStraight && isFlush) {
-//         hand_rank_type = STRAIGHT_FLUSH;
+// Check if the hand is of rank types. Rank types include:
+// four of a kind
+// full house (three of a kind + pair)
+// three of a kind
+// two pairs
+// pair
+// high card
+int getHandRankType(const Hand& hand) {
+    int ranks[13]{};
+    int counts[5]{};
 
-//         for (auto &entry : rankCount) {
-//             if (entry.first > highest_card_rank)
-//                 highest_card_rank = entry.first;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else if (has_N_Kind(rankCount, 4)) {
-//         hand_rank_type = FOUR_OF_A_KIND;
-//         addRankValuesForNOfAKind(rankCount, 4);
-//         for (auto &entry : rankCount) {
-//             if (entry.second == 4) highest_card_rank = entry.first;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else if (hasFullHouse(rankCount)) {
-//         hand_rank_type = FULL_HOUSE;
-//         addRankValuesForFullHouse(rankCount);
-//         for (auto &entry : rankCount) {
-//             if (entry.second == 3) highest_card_rank = entry.first;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else if (isFlush) {
-//         hand_rank_type = FLUSH;
-//         for (auto &card : hand.cards) {
-//             if (card.rank > highest_card_rank) highest_card_rank = card.rank;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else if (isStraight) {
-//         hand_rank_type = STRAIGHT;
-//         for (auto &entry : rankCount) {
-//             if (entry.first > highest_card_rank)
-//                 highest_card_rank = entry.first;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else if (has_N_Kind(rankCount, 3)) {
-//         hand_rank_type = THREE_OF_A_KIND;
-//         addRankValuesForNOfAKind(rankCount, 3);
-//         for (auto &entry : rankCount) {
-//             if (entry.second == 3) highest_card_rank = entry.first;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else if (hasTwoPairs(rankCount)) {
-//         hand_rank_type = TWO_PAIR;
-//         addRankValuesForTwoPairs(rankCount);
-//         for (auto &entry : rankCount) {
-//             if (entry.second == 2 && entry.first > highest_card_rank)
-//                 highest_card_rank = entry.first;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else if (has_N_Kind(rankCount, 2)) {
-//         hand_rank_type = ONE_PAIR;
-//         addRankValuesForNOfAKind(rankCount, 2);
-//         highest_card_rank = rankValues[0];
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     } else {
-//         hand_rank_type = HIGH_CARD;
-//         for (auto &card : hand.cards) {
-//             rankValues.push_back(card.rank);
-//             if (card.rank > highest_card_rank) highest_card_rank = card.rank;
-//         }
-//         for (auto &card : hand.cards) {
-//             if (card.rank == highest_card_rank) {
-//                 highest_card_suit = card.suit;
-//             }
-//         }
-//     }
+    for (int card : hand.cards) {
+        if (card == -1) break;
+        ranks[getCardRank(card)]++;
+    }
+    for (int rank : ranks) {
+        counts[rank]++;
+    }
 
-//     // Assign highest card to hand for comparing equal hand type
-//     hand.highest_card_type.rank = static_cast<Rank>(highest_card_rank);
-//     hand.highest_card_type.suit = static_cast<Suit>(highest_card_suit);
+    if (counts[4] == 1) return HandType::FOUR_OF_A_KIND;
+    if (counts[2] >= 1 && counts[3] == 1) return HandType::FULL_HOUSE;
+    if (counts[3] == 1) return HandType::THREE_OF_A_KIND;
+    if (counts[2] == 2) return HandType::TWO_PAIR;
+    if (counts[2] == 1) return HandType::ONE_PAIR;
 
-//     // Clear rankValues and rankCount after use
-//     reset_rankValues(rankValues);
-//     reset_rankCount(rankCount);
+    return HandType::HIGH_CARD;
+}
 
-//     return hand_rank_type;
-// }
+int getHandType(const Hand& hand) {
+    if (hand.size < 5) return HandType::NULL_TYPE;
+    bool flush = isFlush(hand);
+    bool straight = isStraight(hand);
+    if (flush && straight) return HandType::STRAIGHT_FLUSH;
+    if (flush) return HandType::FLUSH;
+    if (straight) return HandType::STRAIGHT;
 
-// bool compareTwoHands(Hand &hand1, Hand &hand2) {
-//     // First, compare hand types (higher types win)
-//     if (hand1.type != hand2.type) {
-//         return hand1.type > hand2.type;
-//     }
+    return getHandRankType(hand);
+}
 
-//     // If hand types are the same, compare highest card ranks
-//     if (hand1.highest_card_type.rank != hand2.highest_card_type.rank) {
-//         return hand1.highest_card_type.rank > hand2.highest_card_type.rank;
-//     }
+// Calculate the type and point of a poker hand
+std::pair<int, int> evalPoker(const Hand& hand) {
+    if (hand.size < 5) return std::make_pair(HandType::NULL_TYPE, 0);
+    int handType = getHandType(hand);
+    // If two players has the same hand type, the player with the highest card
+    // wins
+    switch (handType) {
+        // Highest card of hand
+        case HandType::STRAIGHT_FLUSH:
+        case HandType::STRAIGHT:
+        case HandType::FLUSH:
+        case HandType::HIGH_CARD:
+            return std::make_pair(handType, hand.cards[4]);
+        // Highest card of triplet, then pair
+        case HandType::FULL_HOUSE:
+            if (getCardRank(hand.cards[4]) == getCardRank(hand.cards[2])) {
+                return std::make_pair(handType,
+                                      hand.cards[4] * 100 + hand.cards[1]);
+            }
+            return std::make_pair(handType,
+                                  hand.cards[4] + hand.cards[2] * 100);
+        // Highest of triplet/quad
+        case HandType::FOUR_OF_A_KIND:
+        case HandType::THREE_OF_A_KIND:
+            return std::make_pair(handType, hand.cards[2]);
+        // Highest of both pair
+        case HandType::TWO_PAIR: {
+            int mx = std::max(hand.cards[3], hand.cards[1]);
+            int mn = std::min(hand.cards[3], hand.cards[1]);
+            return std::make_pair(handType, mx * 100 + mn);
+        }
+        case HandType::ONE_PAIR:
+            for (int i = 0; i < 4; i++) {
+                if (getCardRank(hand.cards[i]) ==
+                    getCardRank(hand.cards[i + 1])) {
+                    return std::make_pair(handType, hand.cards[i]);
+                }
+            }
+            break;
+        default:
+            break;
+    }
+    return std::make_pair(handType, hand.cards[4]);
+}
 
-//     // If highest cards are also the same, compare suit for further
-//     tiebreakers if (hand1.highest_card_type.suit >
-//     hand2.highest_card_type.suit) {
-//         return true;
-//     }
+}  // namespace PokerEngine
 
-//     // If all ranks are identical, the hands are equal
-//     return false;
-// }
-
-// void setRankingMatch(std::vector<Hand> &players) {
-//     // Evaluate each hand
-//     for (int i = 0; i < players.size(); i++) {
-//         players[i].type = evaluateHand(players[i]);
-//         players[i].player_index = i + 1;
-//     }
-
-//     std::sort(players.begin(), players.end(), compareTwoHands);
-
-//     for (int i = 0; i < players.size(); i++) {
-//         players[i].ranking_match = i + 1;
-//     }
-// }
-
-// void displayLeaderboard(std::vector<Hand> &players) {
-//     std::cout << "Poker Leaderboard:\n";
-//     int rank = 1;
-//     for (auto &hand : players) {
-//         std::cout << "Rank " << rank << ": Player " << hand.player_index
-//                   << ", Hand Type " << hand.type << ", Highest Card "
-//                   << hand.highest_card_type.to_string() << ", Ranking Match "
-//                   << hand.ranking_match << "\n";
-//         rank++;
-//     }
-// }
 #endif
