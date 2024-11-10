@@ -10,6 +10,7 @@ using namespace std;
 class User_Action {
    private:
     unordered_map<string, string> User_Data_Storage;
+    unordered_map<string, long long> User_Money_Data;
 
    public:
     void Choice();
@@ -17,13 +18,17 @@ class User_Action {
     void Load_Data();
     void Save_Data(string, string);
     void LogIn();
+    void Load_Money();
+    void User_Money(string, long long);
+    void Update_Money(string, long long);
+    void Display_Money(string);
 };
-
+struct 
 /* TODO:
 User data:
-- tên (name)
-- điểm
-- số game đã chơi (gamesPlayed)
+- tên (name) ----------- Updated
+- điểm ----------- Updated
+- số game đã chơi (gamesPlayed) 
 - số game đã thắng (gamesWon)
 - winrate (tính từ hai thông số trên)
 - favoriteStrat ("chiến thuật" hay chơi nhất, e.g. flush, straight, ...)
