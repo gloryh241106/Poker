@@ -22,12 +22,20 @@ class User_Action {
     void User_Money(string, long long);
     void Update_Money(string, long long);
     void Display_Money(string);
+
+    //Log in/ Sign up/ Log out
+    //User data : Username and Money
 };
-struct 
+class User_Data {
+    public:    
+     void Num_Game_Played();
+     void Num_Game_Won(); // contain Num of Game lost and the stat.
+     void Win_Rate();
+     void Fav_Stat();
+     void Leader_board();
+};
 /* TODO:
 User data:
-- tên (name) ----------- Updated
-- điểm ----------- Updated
 - số game đã chơi (gamesPlayed) 
 - số game đã thắng (gamesWon)
 - winrate (tính từ hai thông số trên)
