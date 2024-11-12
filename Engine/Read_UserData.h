@@ -27,12 +27,16 @@ class User_Action {
     //User data : Username and Money
 };
 class User_Data {
+    private:
+        unordered_map<string, int> User_Game_Played;
+        unordered_map<string, int> User_Game_Won;
+        
     public:    
-     void Num_Game_Played();
-     void Num_Game_Won(); // contain Num of Game lost and the stat.
-     void Win_Rate();
-     void Fav_Stat();
-     void Leader_board();
+     int Num_Game_Played(string);
+     int Num_Game_Won(string); // contain Num of Game lost and the stat.
+     double Win_Rate(string);
+     int Leader_Board();
+     int Load_Data();
 };
 /* TODO:
 User data:

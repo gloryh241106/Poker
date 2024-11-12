@@ -16,7 +16,8 @@ void User_Action::Load_Data() {
 void User_Action::Load_Money() {
 	fstream myFile;
 	myFile.open("UserMoney.txt", ios::in);
-	string UserName, Money;
+	string UserName
+	long long Money;
 	if (myFile.is_open()) {
 		while (myFile >> UserName >> Money)
 			User_Money_Data[UserName] = Money;
