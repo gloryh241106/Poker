@@ -3,8 +3,14 @@
 #include <iostream>
 
 #include "RenderWindow.h"
+#include "RenderButton.h"
 #include "Entity.h"
 #include "Utils.h"
+#include "GameButton.h"
+
+void onImageClick() {
+    std::cout << "Image clicked" << '\n';
+}
 
 int main(int argc, char* args[]) {
     // Checking if initialize get error
@@ -22,11 +28,7 @@ int main(int argc, char* args[]) {
     
     // Load event and texture
     SDL_Event event;
-    SDL_Texture* gameMenu = window.loadTexture("gfs/Screen/Game_Init.png");
-    SDL_Texture* buttonStartGame = window.loadTexture("gfs/Screen/Button/Button_StartGame.png");
-
-    // Create entities (Buttons)
-    Entity entities[3] = {Entity(1000, 200, gameMenu), Entity(30, 0, gameMenu), Entity(60, 0, gameMenu)};
+    SDL_Texture* gameMenu = window.loadTexture("Assets/Screen/Game_Init.png");
 
     // Initializing variables for checking frame time
     const float timeStep = 0.01f;
@@ -45,22 +47,22 @@ int main(int argc, char* args[]) {
         // Handle event
         while (accumulator >= timeStep) {
             while (SDL_PollEvent(&event)) {
+                // Quit
                 if (event.type == SDL_QUIT) 
                     gameRunning = false;
+
             }
 
             accumulator -= timeStep;
         }
 
         // Render and display image, entities
-        window.clear();
-        window.render(gameMenu);
-        window.display();
+        StartGame(window);
 
         // Checking time and get delay for better gameplay
         int frameTicks = SDL_GetTicks() - startTicks;
 
-        // Delay time for fit with computer frame time
+        // Delay time for fitting with computer frame time
         if (frameTicks < 1000 / window.getRefreshRate()) {
             SDL_Delay(1000 / window.getRefreshRate() - frameTicks);
         }
