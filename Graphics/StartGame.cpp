@@ -1,16 +1,4 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <iostream>
-
-#include "RenderWindow.h"
-#include "RenderButton.h"
-#include "Entity.h"
-#include "Utils.h"
-#include "GameButton.h"
-
-void onImageClick() {
-    std::cout << "Image clicked" << '\n';
-}
+#include "Graphics.h"
 
 int main(int argc, char* args[]) {
     // Checking if initialize get error
@@ -28,7 +16,6 @@ int main(int argc, char* args[]) {
     
     // Load event and texture
     SDL_Event event;
-    SDL_Texture* gameMenu = window.loadTexture("Assets/Screen/Game_Init.png");
 
     // Initializing variables for checking frame time
     const float timeStep = 0.01f;
@@ -57,7 +44,7 @@ int main(int argc, char* args[]) {
         }
 
         // Render and display image, entities
-        StartGame(window);
+        InitGame(window, gameRunning, event);
 
         // Checking time and get delay for better gameplay
         int frameTicks = SDL_GetTicks() - startTicks;

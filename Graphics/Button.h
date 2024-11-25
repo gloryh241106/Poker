@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include "RenderWindow.h"
 
 class Button {
     public:
@@ -12,10 +13,7 @@ class Button {
             w = p_w;
             h = p_h;
 
-            button_texture = IMG_LoadTexture(renderer, p_buttonPath);
-            if (button_texture == NULL) {
-                std::cerr << "Failed to load button texture. Error: " << SDL_GetError() << '\n';
-            }
+            button_texture = resource.getTexture(p_buttonPath, renderer);
         }
 
         bool isClicked (SDL_Event &event) {
@@ -33,7 +31,7 @@ class Button {
         void renderButton() {
             SDL_Rect buttonSize = {x, y, w, h};
             if (button_texture != NULL) {
-                SDL_RenderCopy (button_renderer, button_texture, NULL, &buttonSize);
+                SDL_RenderCopy(button_renderer, button_texture, NULL, &buttonSize);
             }
         }
 

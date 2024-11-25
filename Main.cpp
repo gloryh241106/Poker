@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Engine/Gameplay/Hand.h"
+#include "Engine/Hand.h"
 
 int main() {
     std::cout << "Welcome to Poker!" << std::endl;
