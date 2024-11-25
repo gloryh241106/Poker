@@ -15,7 +15,6 @@ void InitGame(RenderWindow window, bool &gameRunning, SDL_Event event) {
     Button startGame = {window.getRenderer(), "Assets/Button/Button_StartGame.png", 800, 100, 300, 100};
     Button tutorial = {window.getRenderer(), "Assets/Button/Button_Tutorial.png", 800, 250, 300, 100};
     Button leaderboard = {window.getRenderer(), "Assets/Button/Button_Leaderboard.png", 800, 400, 300, 100};
-    Button back = {window.getRenderer(), ""}
 
     // Clear
     window.clear();
@@ -33,9 +32,6 @@ void InitGame(RenderWindow window, bool &gameRunning, SDL_Event event) {
         }
         else if (leaderboard.isClicked(event)) {
             Leaderboard(window);
-        }
-        else if (back.isClicked(event)) {
-            break;
         }
     }
     // Render
