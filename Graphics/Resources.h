@@ -5,8 +5,6 @@
 #include <iostream>
 #include <unordered_map>
 
-
-
 class Resources {
 public:
     SDL_Texture* addTexture(const char* p_filePath, SDL_Renderer* renderer) {

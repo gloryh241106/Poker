@@ -25,15 +25,16 @@ void InitGame(RenderWindow window, bool &gameRunning, SDL_Event event) {
             gameRunning = false;
         // If not quit, check which mode player choose
         else if (startGame.isClicked(event)) {
-            GameMenu(window);
+            GameMenu(window, gameRunning, event);
         }
         else if (tutorial.isClicked(event)) {
-            Tutorial(window);
+            Tutorial(window, gameRunning, event);
         }
         else if (leaderboard.isClicked(event)) {
-            Leaderboard(window);
+            Leaderboard(window, gameRunning, event);
         }
     }
+    
     // Render
     window.renderScreen(gameInit);
     startGame.renderButton();
@@ -44,21 +45,49 @@ void InitGame(RenderWindow window, bool &gameRunning, SDL_Event event) {
     window.display();
 }
 
-void GameMenu(RenderWindow window) {
+void GameMenu(RenderWindow window, bool &gameRunning, SDL_Event event) {
     SDL_Texture* gameMenu = window.loadTexture("Assets/Screen/Game_Init.png");
     Button startGame = {window.getRenderer(), "Assets/Button/Button_StartGame.png", 800, 100, 300, 100};
     Button tutorial = {window.getRenderer(), "Assets/Button/Button_Tutorial.png", 800, 250, 300, 100};
     Button leaderboard = {window.getRenderer(), "Assets/Button/Button_Leaderboard.png", 800, 400, 300, 100};
+
+    // Clear
+    window.clear();
+
+    while (SDL_PollEvent(&event)) {
+        // Quit
+        if (event.type == SDL_QUIT) 
+            gameRunning = false;
+        // If not quit, check which mode player choose
+        else if (startGame.isClicked(event)) {
+            GameMenu(window, gameRunning, event);
+        }
+        else if (tutorial.isClicked(event)) {
+            Tutorial(window, gameRunning, event);
+        }
+        else if (leaderboard.isClicked(event)) {
+            Leaderboard(window, gameRunning, event);
+        }
+    }
+
+    // Render
+    window.renderScreen(gameMenu);
+    startGame.renderButton();
+    tutorial.renderButton();
+    leaderboard.renderButton();
+
+    // Display
+    window.display();
 }
 
-void Tutorial(RenderWindow window) {
-    SDL_Texture* gameMenu = window.loadTexture("Assets/Screen/Game_Init.png");
-    Button startGame = {window.getRenderer(), "Assets/Button/Button_StartGame.png", 800, 100, 300, 100};
-    Button tutorial = {window.getRenderer(), "Assets/Button/Button_Tutorial.png", 800, 250, 300, 100};
-    Button leaderboard = {window.getRenderer(), "Assets/Button/Button_Leaderboard.png", 800, 400, 300, 100};
-}
+// void Tutorial(RenderWindow window, bool &gameRunning, SDL_Event event) {
+//     SDL_Texture* gameMenu = window.loadTexture("Assets/Screen/Game_Init.png");
+//     Button startGame = {window.getRenderer(), "Assets/Button/Button_StartGame.png", 800, 100, 300, 100};
+//     Button tutorial = {window.getRenderer(), "Assets/Button/Button_Tutorial.png", 800, 250, 300, 100};
+//     Button leaderboard = {window.getRenderer(), "Assets/Button/Button_Leaderboard.png", 800, 400, 300, 100};
+// }
 
-void Leaderboard(RenderWindow window) {
+// void Leaderboard(RenderWindow window, bool &gameRunning, SDL_Event event) {
 
-}
+// }
 #endif
