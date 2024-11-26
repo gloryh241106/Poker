@@ -25,7 +25,7 @@ class User_Action {
     int Num_Game_Played(string);
     int Num_Game_Won(string); // contain Num of Game lost and the stat.
     double Win_Rate(string);
-    int Leader_Board(string);
+    void Leader_Board(string);
     int Load_Data_NumGame();
     void Choice();
     void SignUp();

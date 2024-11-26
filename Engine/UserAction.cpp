@@ -3,18 +3,23 @@
 // Tai ten dang nhap va mat khau da duoc luu cua nguoi dung vao chuong trinh
 void User_Action::Load_Data() {
 	fstream myFile;
-	myFile.open("UserData.txt", ios::in);
+	fstream myFile("UserData.txt", ios::out | ios::app); // Tao file neu chua ton tai file san
+	myFile.close(); // Dong lai file sau khi kiem tra
+	myFile.open("UserData.txt", ios::in); 
 	string UserName, PassWord;
 	if (myFile.is_open()) {
 		while (myFile >> UserName >> PassWord)
 			User_Data_Storage[UserName] = PassWord;
 		myFile.close();
 	}
+	else cout << "Trouble in loading user data" << endl;
 }
 
 // Tai so tien cua nguoi dung 
 void User_Action::Load_Money() {
 	fstream myFile;
+	fstream myFile("UserMoney.txt", ios::out | ios::app);
+	myFile.close(); 
 	myFile.open("UserMoney.txt", ios::in);
 	string UserName;
 	long long Money;
@@ -23,6 +28,7 @@ void User_Action::Load_Money() {
 			User_Money_Data[UserName] = Money;
 		myFile.close();
 	}
+	else cout << "Trouble in loading user data" << endl;
 }
 
 //Luu thong tin nguoi dung dang ki
@@ -34,7 +40,19 @@ void User_Action::Save_Data(string UserName, string PassWord) {
 		myFile << PassWord << endl;
 		myFile.close();
 	}
-	else cout << "Trouble in saving data!" << endl;
+	else {
+		char action;
+		cout << "Trouble in saving UserData!" << endl; 
+		cout << "Do you want to sign up again? (Y/N)" << endl;
+		do {
+			getline(cin, action);
+			toupper(action);
+			if (action == 'Y')
+				SignUp();
+			if (action == 'N')
+				Choice();
+		} while (action != 'Y' && action != 'N')
+	}
 }
 
 //Luu money nguoi dung luc dang ki
@@ -46,12 +64,11 @@ void User_Action::User_Money(string UserName, long long Money) {
 		myFile << Money << endl;
 		myFile.close();
 	}
-	else cout << "Trouble in saving data!" << endl;
+	else cout << "Trouble in saving UserMoney!" << endl;
 }
 string User_Action::HashPassword(string password) {
 	unsigned char hash[SHA256_DIGEST_LENGTH]; // Khoi tao mang Hash voi 256 bits
-	SHA256((unsigned char*)password.c_str(), password.size(), hash); // Goi ham bam mat khau co san trong thu vien
-
+	SHA256((unsigned char*)password.c_str(), password.size(), hash); // Goi ham ma hoa mat khau co san trong thu vien
 	stringstream ss;
 	for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
 		ss << hex << setw(2) << setfill('0') << (int)hash[i];    // Chuyen qua he Hex
@@ -93,12 +110,10 @@ void User_Action::SignUp() {
 			continue;
 		}
 
-		//Them 1 ham ma hoa mat khau
-
 		cout << "Sign up successfully" << endl; //Username chua tung duoc luu => khong trung ten
-		HashedPassWord = HashPassword(PassWord);
+		HashedPassWord = HashPassword(PassWord); // Ma hoa mat khau
 		Save_Data(UserName, HashedPassWord);
-		User_Money(UserName, 500000);
+		User_Money(UserName, 5000); // 5000dola mac dinh
 		break;
 	} while (true);
 
@@ -106,14 +121,31 @@ void User_Action::SignUp() {
 
 void User_Action::LogIn() {
 	string UserName, PassWord;
-	cout << "Enter your UserName" << endl;
-	getline(cin, UserName);
-	cout << "Enter your PassWord" << endl;
-	getline(cin, PassWord);
-	if (User_Data_Storage[UserName] == HashPassword(PassWord) && User_Data_Storage.find(UserName) != User_Data_Storage.end())
-		cout << "Log in successfully" << endl; //Thong tin nhap trung khop voi thong tin da duoc luu
-	else cout << "Username or Password is not correct!" << endl;
-}
+	while (true) {
+		cout << "Enter your UserName" << endl;
+		getline(cin, UserName);
+		cout << "Enter your PassWord" << endl;
+		getline(cin, PassWord);
+		if (User_Data_Storage.find(UserName) != User_Data_Storage.end() && User_Data_Storage[UserName] == HashPassword(PassWord)) {
+			cout << "Log in successfully" << endl; //Thong tin nhap trung khop voi thong tin da duoc luu
+			break;
+		}
+		else {
+			cout << "Username or Password is not correct!" << endl;
+			cout << "Do you want to sign up ? (Y/N)" << endl;
+			char action;
+			getline(cin, action);
+			toupper(action);
+			do {
+				if (action == 'Y')
+					SignUp();
+				if (action == 'N')
+					Choice();
+			} while (action != 'Y' && action != 'N')
+
+		}
+	}
+}	
 
 void User_Action::Choice() {
 	Load_Data();
@@ -160,7 +192,7 @@ void User_Action::Update_Money(string UserName, long long MoneyChange) {
 //Hien thi so tien nguoi dung
 void User_Action::Display_Money(string UserName) {
 	if (User_Money_Data.find(UserName) != User_Money_Data.end()) 
-		cout << "Current balance for " << UserName << ":" << User_Money_Data[UserName] << "VND" << endl;
+		cout << "Current balance for " << UserName << ":" << User_Money_Data[UserName] << "$" << endl;
 	else cout << "User not found!" << endl;
 }
 
@@ -179,21 +211,25 @@ double User_Action::Win_Rate(string Username) {
 	return (Num_Game_Won(Username)) / (Num_Game_Played(Username));
 } 
 
-int User_Action::Leader_Board(string Username) {
-	Board.push_back({ Win_Rate(Username), Username });
-	sort(Board.begin(), Board.end(), greater<>());
+void User_Action::Display_Leader_Board(string Username) {
+	Board.push_back({Win_Rate(Username), Username});
+	sort(Board.begin(), Board.end());
 	for (auto x : Board)
 		cout << x.first << " " << x.second << endl;
 }
 
 int User_Action::Load_Data_NumGame() {
 	fstream myFile;
+	fstream myFile("UserGamePlayed.txt", ios::out | ios::app); 
+	myFile.close(); 
 	myFile.open("UserGamePlayed.txt", ios::in);
 	string Username;
-	int GamePlayed;
+	int GamePlayed, GameWon;
 	if (myFile.is_open()) {
-		while(myFile >> Username >> GamePlayed)
+		while (myFile >> Username >> GamePlayed >> GameWon) {
+			User_Game_Won[Username] = GameWon;
 			User_Game_Played[Username] = GamePlayed;
+		}
 		myFile.close();
 	}
 }
