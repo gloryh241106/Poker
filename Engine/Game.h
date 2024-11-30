@@ -1,6 +1,7 @@
 #ifndef __GAME__
 #define __GAME__
 
+#include <iomanip>
 #include <string>
 
 #include "Hand.h"
@@ -8,115 +9,143 @@
 #include "Random.h"
 #include "XiDachEngine.h"
 
-// Generate a random player name
-std::string randomName() {
-    std::string alphaNumeric =
-        "01233456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    std::shuffle(alphaNumeric.begin(), alphaNumeric.end(), globalRNG);
-    return "Player " + alphaNumeric.substr(0, 10);
-}
-
-enum GameType {
-    POKER = 0,
-    XIDACH,
-};
-
 enum PlayerAction {
     FOLD,
-    BET,
+    CALL,
     RAISE,
     ALL_IN,
 };
 
-class Player {
-   public:
-    std::string name;
-    int points;
-    Hand hand;
-    bool folded = 0;
-    bool isHuman = 0;
-    GameType game;
+enum GameMode {
+    POKER = 0,
+    STUDPOKER = 1,
+    XIDACH = 2,
+};
 
-    Player(GameType game, int initialPoints)
-        : game(game), name(randomName()), points(initialPoints) {}
-
-    Player(GameType game, const std::string& playerName, int initialPoints)
-        : game(game), name(playerName), points(initialPoints) {}
-
-    // Decide whether to raise or fold based on the hand
-    bool shouldRaise() {
-        auto evaluation = PokerEngine::evalPoker(hand);
-        int handType = evaluation.first;
-
-        // Raise if the hand is at least a pair
-        if (handType >= HandType::ONE_PAIR) {
-            return true;
-        }
-        return false;
-    }
-
-    // Place a bet
-    bool placeBet(int betAmount) {
-        if (betAmount > points) {
-            return false;  // Not enough points to place the bet
-        }
-        points -= betAmount;
-        return true;
-    }
-
-    // TODO: Poker AI
-    std::pair<PlayerAction, int> getPlayerAction(const int& minBet) {}
-
-    // Fold
-    void fold() { folded = true; }
+enum PlayerMode {
+    PVP = 0,
+    PVE = 1,
 };
 
 class Game {
    public:
-    int playerCount;
+    static const int MAX_PLAYER = 8;
+    bool exit = 0;
+    PlayerMode playerMode;
+    GameMode gameMode;
+    int playerNum;
     Deck deck;
-    GameType game;
-    int minBet = 10;
-    // The zero index player is the Human player
-    int playerOrder[10]{};
-    std::vector<Player> players;
-    Game(int playerCount, GameType game)
-        : players(std::vector(playerCount, Player(game, 1000))),
-          playerCount(playerCount),
-          deck(Deck()),
-          game(game) {
-        for (int i = 0; i < playerCount; i++) playerOrder[i] = i;
-    }
+    int ante = 10;
+    int playerOffset;
+    // std::vector<Player> players;
+    Game() { playerOffset = intRNG() % MAX_PLAYER; }
 
-    // Generate a new game
-    void newGame(int count = -1) {
-        if (count != -1) {
-            playerCount = count;
-            for (int i = 0; i < playerCount; i++) playerOrder[i] = i;
+    void printClearScreen() { std::cout << "\x1b[2J\x1b[H"; }
+
+    // Ask user fo a number in range [0,n]
+    int getOptionNum(int n) {
+        int op = -1;
+        while (op < 0 || op > n) {
+            std::cout << "(0-" << n << "): ";
+            std::cin >> op;
+            std::cin.ignore(1000, '\n');
         }
-        minBet = 10;
-        deck.newDeck();
+        return op;
     }
 
-    // Deal one card for each player
-    void dealRound() {
-        for (int i = 0; i < playerCount; i++)
-            players[playerOrder[i]].hand.add(deck.top());
-        deck.pop();
+    // Ask user fo a number in range [n,m]
+    int getOptionNum(int n, int m) {
+        int op = -1;
+        while (op < n || op > m) {
+            std::cout << "(" << n << "-" << m << "): ";
+            std::cin >> op;
+            std::cin.ignore(1000, '\n');
+        }
+        return op;
     }
 
-    // Ask each player whether they want to bet, raise or fold
-    void betRound() {
-        for (int i = 0; i < playerCount; i++) {
-            // Skip folded players
-            if (players[playerOrder[i]].folded) continue;
-            if (playerOrder[i] == 0) {  // Human player
-            }
+    bool getOptionYN() {
+        std::string opStr;
+        while (1) {
+            std::cout << "(y/n): ";
+            std::getline(std::cin, opStr);
+            if (opStr == "y" || opStr == "Y") return 1;
+            if (opStr == "n" || opStr == "N") return 0;
         }
     }
 
-    // TODO: Load game
-    // TODO: Save game
+    void printTitle() {
+        std::cout << "\n";
+        std::cout
+            << "  ____ _               _                    _             \n";
+        std::cout
+            << " / ___| | __ _ ___ ___(_) ___   _ __   ___ | | _____ _ __ \n";
+        std::cout << "| |   | |/ _` / __/ __| |/ __| | '_ \\ / _ \\| |/ / _ \\ "
+                     "'__|\n";
+        std::cout << "| |___| | (_| \\__ \\__ \\ | (__  | |_) | (_) |   <  __/ "
+                     "|   \n";
+        std::cout << " \\____|_|\\__,_|___/___/_|\\___| | .__/ "
+                     "\\___/|_|\\_\\___|_|   \n";
+        std::cout
+            << "                               |_|                        \n";
+        std::cout << "\n";
+    }
+
+    void printTutorial() {
+        std::cout << "Here goes tutorial\n";
+        std::cout << "Press Enter to go back...";
+        std::cin.ignore(1000, '\n');
+    }
+
+    int getMainOption() {
+        std::cout << "Main menu:\n\n";
+        std::cout << "1.New game\n";
+        std::cout << "2.Tutorial\n";
+        std::cout << "3.Leaderboard\n";
+        std::cout << "0.Exit\n\n";
+        return getOptionNum(3);
+    }
+
+    int getPlayerMode() {
+        std::cout << "Play against:\n";
+        std::cout << "0.Humans (PVP)\n";
+        std::cout << "1.Bots (PVE)\n";
+        return getOptionNum(1);
+    }
+
+    int getGameMode() {
+        std::cout << "Gamemode:\n";
+        std::cout << "0.POKER\n";
+        std::cout << "1.STUD POKER\n";
+        std::cout << "2.XI DACH\n";
+        return getOptionNum(2);
+    }
+
+    int getPlayerNum() {
+        std::cout << "Number of players ";
+        return getOptionNum(2, 8);
+    }
+
+    std::string getPVEName() {
+        std::cout << "Your name: ";
+        std::string name;
+        std::getline(std::cin, name);
+        return name;
+    }
+
+    void getPVPNames();  // TODO
+
+    void getGameInfo() {
+        playerMode = (PlayerMode)getPlayerMode();
+        playerNum = getPlayerNum();
+        gameMode = (GameMode)getGameMode();
+    }
+
+    // void getPlayerInfo() {
+    //     if (playerMode == PlayerMode::PVE) {
+    //         players[0].name = getPVEName();
+    //     }
+    // }
 };
 
 #endif

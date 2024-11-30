@@ -7,55 +7,61 @@
 
 #include "Card.h"
 
-enum HandType {
-    HIGH_CARD,
-    ONE_PAIR,
-    TWO_PAIR,
-    THREE_OF_A_KIND,
-    STRAIGHT,
-    FLUSH,
-    FULL_HOUSE,
-    FOUR_OF_A_KIND,
-    STRAIGHT_FLUSH,
-    NULL_TYPE
-};
+class Hand {
+   private:
+    uint8_t cardMask = 0x00;
+    uint64_t handBit = 0x0000000000000000;
+    //                      AKQJT98765432
 
-struct Hand {
+   public:
     int cards[5] = {-1, -1, -1, -1, -1};
     int size = 0;
-    int type = HandType::NULL_TYPE;
 
     bool add(int card) {
         if (size >= 5) return false;
         cards[size] = card;
+        int t = size;
         size++;
-        std::sort(cards, cards + size);
+        handBit |= 1LL << card;
 
         return true;
     }
 
-    std::string toString() {
+    uint64_t& bit() { return handBit; }
+    const uint64_t& bit() const { return handBit; }
+
+    uint16_t compressedBit() const {
+        uint16_t compressed = 0;
+        for (int i = 0; i < 13; i++) {
+            compressed |= (handBit & (0xfull << (i << 2))) ? (1 << i) : 0;
+        }
+        return compressed;
+    }
+
+    void clear() {
+        handBit = 0x0ull;
+        size = 0;
+        for (int i = 0; i < 5; i++) {
+            cards[i] = -1;
+        }
+    }
+
+    void setMask(uint8_t mask) { cardMask = mask; }
+    void clearMask() { cardMask = 0x00; }
+
+    std::string toString(bool applyMask = false) const {
         std::string handString;
 
-        for (int i = 0; i < size; i++) {
-            handString += cardToString(cards[i]);
-            if (!(i == size - 1)) handString += ' ';
+        for (int i = 0; i < 5; i++) {
+            if (!applyMask || !(cardMask & (1 << i)))
+                handString += cardToString(cards[i]);
+            else
+                handString += "XX";
+            if (i != 4) handString += ' ';
         }
 
         return handString;
     }
 };
-
-// Counting how many times each rank appers in hands
-int getRankCount(int rank, const Hand& hand) {
-    // Zero card in hand
-    if (hand.size <= 0) return 0;
-    int count = 0;
-    for (int card : hand.cards) {
-        if (card == -1) break;
-        if (getCardRank(card) == rank) count++;
-    }
-    return count;
-}
 
 #endif

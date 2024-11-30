@@ -22,110 +22,182 @@
 
 namespace PokerEngine {
 
-// Check if hand is a flush (five cards with same suit)
-bool isFlush(const Hand& hand) {
-    // If hand doesn't have 5 cards
-    if (hand.size < 5) return false;
-    int firstSuit = getCardSuit(hand.cards[0]);
-    for (int i = 1; i < hand.size; i++) {
-        if (getCardSuit(hand.cards[i]) != firstSuit) return false;
-    }
-    return true;
-}
+// Enum for hand types
 
-// Check if hand is a straight (five cards with increasing rank)
-bool isStraight(const Hand& hand) {
-    // If hand doesn't have 5 cards
-    if (hand.size < 5) return false;
-    for (int i = 1; i < hand.size; i++) {
-        if (getCardRank(hand.cards[i]) != (getCardRank(hand.cards[i - 1]) + 1))
-            return false;
-    }
-    return true;
-}
+enum HandType : uint64_t {
+    HIGH_CARD = 1ull << 52,
+    ONE_PAIR = 1ull << 53,
+    TWO_PAIR = 1ull << 54,
+    THREE_OF_A_KIND = 1ull << 55,
+    LOW_ACE_STRAIGHT = 1ull << 56,
+    STRAIGHT = 1ull << 57,
+    FLUSH = 1ull << 58,
+    FULL_HOUSE = 1ull << 59,
+    FOUR_OF_A_KIND = 1ull << 60,
+    LOW_ACE_STRAIGHT_FLUSH = 1ull << 61,
+    STRAIGHT_FLUSH = 1ull << 62,
+    NULL_TYPE = 0
+};
 
-// Check if the hand is of rank types. Rank types include:
-// four of a kind
-// full house (three of a kind + pair)
-// three of a kind
-// two pairs
-// pair
-// high card
-int getHandRankType(const Hand& hand) {
-    int ranks[13]{};
-    int counts[5]{};
+const uint64_t TYPE_MASK = 0xfff0000000000000;
+const uint64_t HAND_MASK = 0x000fffffffffffff;
 
-    for (int card : hand.cards) {
-        if (card == -1) break;
-        ranks[getCardRank(card)]++;
-    }
-    for (int rank : ranks) {
-        counts[rank]++;
-    }
-
-    if (counts[4] == 1) return HandType::FOUR_OF_A_KIND;
-    if (counts[2] >= 1 && counts[3] == 1) return HandType::FULL_HOUSE;
-    if (counts[3] == 1) return HandType::THREE_OF_A_KIND;
-    if (counts[2] == 2) return HandType::TWO_PAIR;
-    if (counts[2] == 1) return HandType::ONE_PAIR;
-
-    return HandType::HIGH_CARD;
-}
-
-int getHandType(const Hand& hand) {
-    if (hand.size < 5) return HandType::NULL_TYPE;
-    bool flush = isFlush(hand);
-    bool straight = isStraight(hand);
-    if (flush && straight) return HandType::STRAIGHT_FLUSH;
-    if (flush) return HandType::FLUSH;
-    if (straight) return HandType::STRAIGHT;
-
-    return getHandRankType(hand);
-}
+const uint64_t QUAD_MASK = 0xf;
+const uint64_t STRAIGHT_MASK = 0xfffff;
+const uint64_t ACE_STRAIGHT_MASK = 0x000f00000000ffff;
+const uint64_t FLUSH_MASK = 0x0001111111111111;
 
 // Calculate the type and point of a poker hand
-std::pair<int, int> evalPoker(const Hand& hand) {
-    if (hand.size < 5) return std::make_pair(HandType::NULL_TYPE, 0);
-    int handType = getHandType(hand);
-    // If two players has the same hand type, the player with the highest card
-    // wins
-    switch (handType) {
-        // Highest card of hand
-        case HandType::STRAIGHT_FLUSH:
-        case HandType::STRAIGHT:
-        case HandType::FLUSH:
-        case HandType::HIGH_CARD:
-            return std::make_pair(handType, hand.cards[4]);
-        // Highest card of triplet, then pair
-        case HandType::FULL_HOUSE:
-            if (getCardRank(hand.cards[4]) == getCardRank(hand.cards[2])) {
-                return std::make_pair(handType,
-                                      hand.cards[4] * 100 + hand.cards[1]);
-            }
-            return std::make_pair(handType,
-                                  hand.cards[4] + hand.cards[2] * 100);
-        // Highest of triplet/quad
-        case HandType::FOUR_OF_A_KIND:
-        case HandType::THREE_OF_A_KIND:
-            return std::make_pair(handType, hand.cards[2]);
-        // Highest of both pair
-        case HandType::TWO_PAIR: {
-            int mx = std::max(hand.cards[3], hand.cards[1]);
-            int mn = std::min(hand.cards[3], hand.cards[1]);
-            return std::make_pair(handType, mx * 100 + mn);
-        }
-        case HandType::ONE_PAIR:
-            for (int i = 0; i < 4; i++) {
-                if (getCardRank(hand.cards[i]) ==
-                    getCardRank(hand.cards[i + 1])) {
-                    return std::make_pair(handType, hand.cards[i]);
-                }
-            }
+void eval(uint64_t& handBit) {
+    // Flush check
+    bool isFlush = false;
+    for (int i = 0; i < 4; i++) {
+        if (__builtin_popcountll(handBit & (FLUSH_MASK << i)) == 5) {
+            isFlush = true;
             break;
+        }
+    }
+    // Straight check
+    bool isStraight = false;
+    bool lowAce = false;
+    if (__builtin_popcountll(handBit & ACE_STRAIGHT_MASK) == 5) {
+        isStraight = true;
+        lowAce = true;
+        for (int j = 0; j < 4; j++) {
+            if (__builtin_popcountll(handBit & (QUAD_MASK << (j << 2))) != 1) {
+                isStraight = false;
+                lowAce = false;
+                break;
+            }
+        }
+        if (__builtin_popcountll(handBit & (QUAD_MASK << (13 << 2))) != 1) {
+            isStraight = false;
+            lowAce = false;
+        }
+    } else {
+        for (int i = 0; i < 9; i++) {
+            if (__builtin_popcountll(handBit & (STRAIGHT_MASK << (i << 2))) ==
+                5) {
+                isStraight = true;
+                for (int j = 0; j < 5; j++) {
+                    if (__builtin_popcountll(
+                            handBit & (QUAD_MASK << (i << 2) << (j << 2))) !=
+                        1) {
+                        isStraight = false;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    bool isStraightFlush = isStraight && isFlush;
+
+    if (isStraightFlush) {
+        if (lowAce)
+            handBit |= HandType::LOW_ACE_STRAIGHT_FLUSH;
+        else
+            handBit |= HandType::STRAIGHT_FLUSH;
+        return;
+    }
+
+    bool isFourOfAKind = false;
+    for (int i = 0; i < 52; i += 4) {
+        if (__builtin_popcountll(handBit & (QUAD_MASK << i)) == 4) {
+            isFourOfAKind = true;
+            break;
+        }
+    }
+
+    if (isFourOfAKind) {
+        handBit |= HandType::FOUR_OF_A_KIND;
+        return;
+    }
+
+    int pairCount = 0;
+    int tripleCount = 0;
+    for (int i = 0; i < 13; i++) {
+        if (__builtin_popcountll(handBit & (QUAD_MASK << (i << 2))) == 2) {
+            pairCount++;
+        } else if (__builtin_popcountll(handBit & (QUAD_MASK << (i << 2))) ==
+                   3) {
+            tripleCount++;
+        }
+    }
+
+    if (tripleCount == 1 && pairCount == 1) {
+        handBit |= HandType::FULL_HOUSE;
+        return;
+    }
+
+    if (isStraight) {
+        if (lowAce)
+            handBit |= HandType::LOW_ACE_STRAIGHT;
+        else
+            handBit |= HandType::STRAIGHT;
+        return;
+    }
+    if (isFlush) {
+        handBit |= HandType::FLUSH;
+        return;
+    }
+
+    if (tripleCount == 1) {
+        handBit |= HandType::THREE_OF_A_KIND;
+        return;
+    }
+
+    if (pairCount == 2) {
+        handBit |= HandType::TWO_PAIR;
+        return;
+    }
+
+    if (pairCount == 1) {
+        handBit |= HandType::ONE_PAIR;
+        return;
+    }
+
+    handBit |= HandType::HIGH_CARD;
+}
+
+std::string type(const Hand& hand) {
+    uint64_t type = hand.bit() & TYPE_MASK;
+    switch (type) {
+        case HandType::HIGH_CARD:
+            return "High card";
+        case HandType::ONE_PAIR:
+            return "One pair";
+        case HandType::TWO_PAIR:
+            return "Two pair";
+        case HandType::THREE_OF_A_KIND:
+            return "Three of a kind";
+        case HandType::LOW_ACE_STRAIGHT:
+            return "Low ace straight";
+        case HandType::STRAIGHT:
+            return "Straight";
+        case HandType::FLUSH:
+            return "Flush";
+        case HandType::FULL_HOUSE:
+            return "Full house";
+        case HandType::FOUR_OF_A_KIND:
+            return "Four of a kind";
+        case HandType::LOW_ACE_STRAIGHT_FLUSH:
+            return "Low ace straight flush";
+        case HandType::STRAIGHT_FLUSH:
+            return "Straight flush";
         default:
             break;
     }
-    return std::make_pair(handType, hand.cards[4]);
+    return "Unknown";
+}
+
+bool compareHands(const Hand& hand1, const Hand& hand2) {
+    uint64_t type1 = hand1.bit() & TYPE_MASK;
+    uint64_t type2 = hand2.bit() & TYPE_MASK;
+
+    if (type1 != type2) return type1 > type2;
+
+    return hand1.compressedBit() > hand2.compressedBit();
 }
 
 }  // namespace PokerEngine
