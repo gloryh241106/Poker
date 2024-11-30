@@ -19,7 +19,10 @@ void sleep(int milliseconds) {
 int getOptionNum(int n, int m) {
     int op = -1;
     while (op < n || op > m) {
-        std::cout << "(" << n << " - " << m << "): ";
+        if (n != m)
+            std::cout << "(" << n << " - " << m << "): ";
+        else
+            std::cout << "(" << n << "): ";
         std::cin >> op;
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
     }

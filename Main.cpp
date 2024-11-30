@@ -76,6 +76,8 @@ PlayerAction askPlayerAction(Player& player, const int& currBet,
             }
         }
         if (currBet == player.bet) {
+            std::cout << "1. Check" << std::endl;
+            CLI::getOptionNum(1, 1);
             return PlayerAction::CHECK;
         }
         if (currBet == player.chips) {
@@ -158,6 +160,7 @@ int drawPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder,
 
             // DRAW POKER ONLY -------------------------------------------------
 
+            std::cout << "\n\n";  // CLI::clearScreen();
             for (int i : playerOrder) {
                 std::cout << "Player's " << i
                           << " hand: " << player[i].hand.toString(1)
