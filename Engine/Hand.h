@@ -30,10 +30,11 @@ class Hand {
     uint64_t& bit() { return handBit; }
     const uint64_t& bit() const { return handBit; }
 
-    uint16_t compressedBit() const {
-        uint16_t compressed = 0;
+    uint32_t compressedBit() const {
+        uint32_t compressed = 0;
         for (int i = 0; i < 13; i++) {
-            compressed |= (handBit & (0xfull << (i << 2))) ? (1 << i) : 0;
+            int count = __builtin_popcountll(handBit & (0xfull << (i << 2)));
+            compressed |= count << (i << 1);
         }
         return compressed;
     }

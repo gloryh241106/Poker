@@ -9,6 +9,16 @@ enum class GameState { MAIN_MENU, GAME_CONFIG, GAME, TUTORIAL };
 const unsigned int WINDOW_WIDTH = 1000;
 const unsigned int WINDOW_HEIGHT = 800;
 
+sf::Color windowBackground = sf::Color(0x064800FF);
+sf::Font font;
+sf::Texture speakerOnTexture;
+sf::Texture speakerOffTexture;
+sf::Texture homeTexture;
+sf::Texture podiumTexture;
+sf::Texture playerAvatarTextures[8];
+sf::Texture chipTextures[10];
+sf::Texture cardTextures[52];
+
 void horizontalCenterText(sf::Text& text, sf::RenderWindow& window) {
     sf::FloatRect textRect = text.getLocalBounds();
     text.setOrigin(static_cast<int>(textRect.left + textRect.width / 2.0f),
@@ -16,6 +26,48 @@ void horizontalCenterText(sf::Text& text, sf::RenderWindow& window) {
     text.setPosition(sf::Vector2f(static_cast<int>(window.getSize().x / 2.0f),
                                   text.getPosition().y));
 }
+
+sf::Texture& getChipTexture(int chipValue) {
+    if (chipValue <= 5) {
+        return chipTextures[0];
+    }
+    if (chipValue <= 10) {
+        return chipTextures[1];
+    }
+    if (chipValue <= 20) {
+        return chipTextures[2];
+    }
+    if (chipValue <= 50) {
+        return chipTextures[3];
+    }
+    if (chipValue <= 100) {
+        return chipTextures[4];
+    }
+    if (chipValue <= 200) {
+        return chipTextures[5];
+    }
+    if (chipValue <= 500) {
+        return chipTextures[6];
+    }
+    if (chipValue <= 1000) {
+        return chipTextures[7];
+    }
+    if (chipValue <= 2000) {
+        return chipTextures[8];
+    }
+    return chipTextures[9];
+}
+
+sf::Texture& getCardTexture(int card) { return cardTextures[card]; }
+
+struct PlayerProfile {
+    sf::Sprite playerAvatarSprite;
+    sf::Text playerNameText;
+    sf::Text playerChipText;
+    sf::Sprite playerChipSprite;
+    sf::Text playerBetChipText;
+    sf::Sprite playerBetChipSprite;
+};
 
 int main() {
     //-------------------------------------------------------------------------
@@ -27,43 +79,52 @@ int main() {
     window.setFramerateLimit(144);
 
     // Change window background color
-    sf::Color windowBackground = sf::Color(0x064800FF);
     window.clear(windowBackground);
 
     // Load the font
-    sf::Font font;
     if (!font.loadFromFile("assets/fonts/unscii-16.ttf")) {
         std::cerr << "Error loading font\n";
         return -1;
     }
 
-    // Load speaker on image
-    sf::Texture speakerOnTexture;
+    // Load speaker on texture
     if (!speakerOnTexture.loadFromFile("assets/images/speaker.png")) {
         std::cerr << "Error loading speaker on image\n";
         return -1;
     }
 
-    // Load speaker off image
-    sf::Texture speakerOffTexture;
+    // Load speaker off texture
     if (!speakerOffTexture.loadFromFile("assets/images/speaker-off.png")) {
         std::cerr << "Error loading speaker off image\n";
         return -1;
     }
 
-    // Load home image
-    sf::Texture homeTexture;
+    // Load home texture
     if (!homeTexture.loadFromFile("assets/images/home.png")) {
         std::cerr << "Error loading home image\n";
         return -1;
     }
 
-    // Load player images
-    sf::Texture playerTextures[8];
+    // Load podium texture
+    if (!podiumTexture.loadFromFile("assets/images/podium.png")) {
+        std::cerr << "Error loading podium image\n";
+        return -1;
+    }
+
+    // Load player avatar textures
     for (int i = 0; i < 8; i++) {
-        if (!playerTextures[i].loadFromFile("assets/images/player" +
-                                            std::to_string(i) + ".png")) {
+        if (!playerAvatarTextures[i].loadFromFile("assets/images/player" +
+                                                  std::to_string(i) + ".png")) {
             std::cerr << "Error loading player " << i + 1 << " image\n";
+            return -1;
+        }
+    }
+
+    // Load chip textures
+    for (int i = 0; i < 10; i++) {
+        if (!chipTextures[i].loadFromFile("assets/images/chips/chip" +
+                                          std::to_string(i) + ".png")) {
+            std::cerr << "Error loading chip " << i + 1 << " image\n";
             return -1;
         }
     }
@@ -107,9 +168,9 @@ int main() {
     ImageButton homeButton(20.f, 20.f, 45.f, 45.f, "", font, homeTexture);
     homeButton.setButtonColor(sf::Color::Transparent);
 
-    // Create a triangle button using the TriangleButton class
-    // TriangleButton triangleButton(400.f, 500.f, 50.f, 50.f, "Triangle", font,
-    //                               TriangleButton::Direction::UP);
+    // Ranking Button
+    ImageButton rankingButton(20.f, 100.f, 45.f, 45.f, "", font, podiumTexture);
+    rankingButton.setButtonColor(sf::Color::Transparent);
 
     //-------------------------------------------------------------------------
     // Tutorial init
@@ -210,11 +271,45 @@ int main() {
         {475.f, 350.f}, {475.f, 50.f}, {50.f, 200.f},  {900.f, 200.f},
         {200.f, 50.f},  {750.f, 50.f}, {200.f, 350.f}, {750.f, 350.f}};
 
-    sf::Sprite playerSprites[8];
+    sf::Vector2f playerBetPositions[8] = {
+        {475.f, 400.f}, {475.f, 100.f}, {50.f, 250.f},  {900.f, 250.f},
+        {200.f, 100.f}, {750.f, 100.f}, {200.f, 400.f}, {750.f, 400.f}};
+
+    PlayerProfile playerProfiles[8];
+
+    // Init players
     for (int i = 0; i < 8; i++) {
-        playerSprites[i].setTexture(playerTextures[i]);
-        playerSprites[i].setPosition(playerPositions[i]);
-        playerSprites[i].setScale(0.5f, 0.5f);
+        playerProfiles[i].playerAvatarSprite.setTexture(
+            playerAvatarTextures[i]);
+        playerProfiles[i].playerAvatarSprite.setPosition(playerPositions[i]);
+        playerProfiles[i].playerAvatarSprite.setScale(0.5f, 0.5f);
+
+        int chips = 59120;
+        int bet = 34678;
+
+        playerProfiles[i].playerChipText.setString(std::to_string(chips));
+        playerProfiles[i].playerChipText.setFont(font);
+        playerProfiles[i].playerChipText.setCharacterSize(16);
+        playerProfiles[i].playerChipText.setFillColor(sf::Color::White);
+        playerProfiles[i].playerChipText.setPosition(playerPositions[i] +
+                                                     sf::Vector2f(40.f, 50.f));
+
+        playerProfiles[i].playerChipSprite.setTexture(getChipTexture(chips));
+        playerProfiles[i].playerChipSprite.setPosition(playerPositions[i] +
+                                                       sf::Vector2f(0.f, 50.f));
+        playerProfiles[i].playerChipSprite.setScale(0.4f, 0.4f);
+
+        playerProfiles[i].playerBetChipText.setString(std::to_string(bet));
+        playerProfiles[i].playerBetChipText.setFont(font);
+        playerProfiles[i].playerBetChipText.setCharacterSize(16);
+        playerProfiles[i].playerBetChipText.setFillColor(sf::Color::White);
+        playerProfiles[i].playerBetChipText.setPosition(
+            playerPositions[i] + sf::Vector2f(40.f, 100.f));
+
+        playerProfiles[i].playerBetChipSprite.setTexture(getChipTexture(bet));
+        playerProfiles[i].playerBetChipSprite.setPosition(
+            playerPositions[i] + sf::Vector2f(0.f, 100.f));
+        playerProfiles[i].playerBetChipSprite.setScale(0.4f, 0.4f);
     }
 
     Button foldButton(WINDOW_WIDTH / 2 - 200.f, 700.f, 100.f, 50.f, "Fold",
@@ -345,8 +440,13 @@ int main() {
             startGameButton.draw(window);
         } else if (gameState == GameState::GAME) {
             // Draw the game
+            rankingButton.draw(window);
             for (int i = 0; i < playerCount; i++) {
-                window.draw(playerSprites[i]);
+                window.draw(playerProfiles[i].playerAvatarSprite);
+                window.draw(playerProfiles[i].playerChipText);
+                window.draw(playerProfiles[i].playerChipSprite);
+                window.draw(playerProfiles[i].playerBetChipText);
+                window.draw(playerProfiles[i].playerBetChipSprite);
             }
             foldButton.draw(window);
             callButton.draw(window);
