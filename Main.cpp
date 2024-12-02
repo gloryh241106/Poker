@@ -40,24 +40,13 @@ void dequePrev(std::deque<int>& q) {
 
 PlayerAction askPlayerAction(Player& player, const int& currBet,
                              const int& minRaiseDiff, bool& preflop) {
-    if (preflop) {
-        if (player.bet == currBet) {
-            std::cout << "1. Check" << std::endl;
-            std::cout << "2. Raise" << std::endl;
-            int op = CLI::getOptionNum(1, 2);
-            if (op == 1) {
-                return PlayerAction::CHECK;
-            } else {
-                preflop = false;
-                return PlayerAction::RAISE;
-            }
-        }
-        std::cout << "1. Call" << std::endl;
+    if (currBet == 0) {
+        std::cout << "1. Check" << std::endl;
         std::cout << "2. Raise" << std::endl;
         std::cout << "3. Fold" << std::endl;
         int op = CLI::getOptionNum(1, 3);
         if (op == 1) {
-            return PlayerAction::CALL;
+            return PlayerAction::CHECK;
         } else if (op == 2) {
             preflop = false;
             return PlayerAction::RAISE;
@@ -65,31 +54,6 @@ PlayerAction askPlayerAction(Player& player, const int& currBet,
             return PlayerAction::FOLD;
         }
     } else {
-        if (currBet == 0) {
-            std::cout << "1. Check" << std::endl;
-            std::cout << "2. Bet" << std::endl;
-            int op = CLI::getOptionNum(1, 3);
-            if (op == 1) {
-                return PlayerAction::CHECK;
-            } else if (op == 2) {
-                return PlayerAction::BET;
-            }
-        }
-        if (currBet == player.bet) {
-            std::cout << "1. Check" << std::endl;
-            CLI::getOptionNum(1, 1);
-            return PlayerAction::CHECK;
-        }
-        if (currBet == player.chips) {
-            std::cout << "1. Call" << std::endl;
-            std::cout << "2. Fold" << std::endl;
-            int op = CLI::getOptionNum(1, 2);
-            if (op == 1) {
-                return PlayerAction::CALL;
-            } else {
-                return PlayerAction::FOLD;
-            }
-        }
         std::cout << "1. Call" << std::endl;
         std::cout << "2. Raise" << std::endl;
         std::cout << "3. Fold" << std::endl;
