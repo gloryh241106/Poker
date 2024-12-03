@@ -432,83 +432,91 @@ void drawPokerGameRound(std::vector<Player>& player,
 }
 
 int main() {
-    // bool exited = 0;
-    // while (!exited) {
-    //     std::cout << "\n\n";  // CLI::clearScreen();
-    //     CLI::title();
+    bool exited = 0;
+    while (!exited) {
+        std::cout << "\n\n";  // CLI::clearScreen();
+        CLI::title();
 
-    //     int op = 0;
-    //     std::cout << std::endl;
-    //     std::cout << "What do you want to do?" << std::endl;
-    //     std::cout << "1. New game" << std::endl;
-    //     std::cout << "0. Exit" << std::endl;
-    //     op = CLI::getOptionNum(0, 1);
+        int op = 0;
+        std::cout << std::endl;
+        std::cout << "What do you want to do?" << std::endl;
+        std::cout << "1. New game" << std::endl;
+        std::cout << "0. Exit" << std::endl;
+        op = CLI::getOptionNum(0, 1);
 
-    //     if (op == 0) {
-    //         exited = 1;
-    //     } else if (op == 1) {
-    //         std::cout << "\n\n";  // CLI::clearScreen();
+        if (op == 0) {
+            exited = 1;
+        } else if (op == 1) {
+            std::cout << "\n\n";  // CLI::clearScreen();
 
-    //         // Initialize players
-    //         std::cout << "How many players do you want to play with?"
-    //                   << std::endl;
-    //         int playerCount = CLI::getOptionNum(2, 8);
+            // Initialize players
+            std::cout << "How many players do you want to play with?"
+                      << std::endl;
+            int playerCount = CLI::getOptionNum(2, 8);
 
-    //         std::vector<Player> player(
-    //             playerCount, Player{Hand(), Random::_name(), 1000, 0, 0, 0,
-    //             0});
+            std::vector<Player> player(
+                playerCount, Player());
+	    for(Player &p: player){
+	    	p.hand = Hand();
+	    	p.name = Random::_name();
+	    	p.chips = 1000;
+	    	p.bet = 0;
+	    	p.folded = 0;
+	    	p.lost = 0;
+	    	p.allIn = 0;
+	    }
 
-    //         // Masking card
-    //         for (int i = 0; i < playerCount; i++) {
-    //             player[i].hand.setMask(0x01);
-    //         }
+            // Masking card
+            for (int i = 0; i < playerCount; i++) {
+                player[i].hand.setMask(0x01);
+            }
 
-    //         // Initialize player's order
-    //         std::deque<int> playerOrder;
-    //         for (int i = 0; i < playerCount; i++) {
-    //             playerOrder.push_back(i);
-    //         }
-    //         drawPokerGameRound(player, playerOrder, 5);
+            // Initialize player's order
+            std::deque<int> playerOrder;
+            for (int i = 0; i < playerCount; i++) {
+                playerOrder.push_back(i);
+            }
+            drawPokerGameRound(player, playerOrder, 5);
 
-    //         // Uncomment this to play multiple
-    //         rounds---------------------------
-    //         //
-    //         // int round = 1;
-    //         // while (player.size() > 1) {
-    //         //     std::cout << "\n\n"; // CLI::clearScreen();
-    //         //     std::cout << "Round " << round << std::endl;
-    //         //     CLI::sleep(1000);
-    //         //     gameRound(player, playerOrder, 5);
-    //         //     round++;
-    //         // }
-    //         //
-    //         //------------------------------------------------------------------
-    //     }
-    // }
+            // Uncomment this to play multiple
+            // rounds-- -- -- -- -- -- -- -- -- -- -- -- -- -
+            //
+            // int round = 1;
+            // while (player.size() > 1) {
+            //     std::cout << "\n\n"; // CLI::clearScreen();
+            //     std::cout << "Round " << round << std::endl;
+            //     CLI::sleep(1000);
+            //     gameRound(player, playerOrder, 5);
+            //     round++;
+            // }
+            //
+            //------------------------------------------------------------------
+        }
+    }
 
-    Hand hand;
-    hand.add(Suit::SPADES | (Rank::TEN << 2));
-    hand.add(Suit::HEARTS | (Rank::TEN << 2));
-    hand.add(Suit::SPADES | (Rank::SIX << 2));
-    hand.add(Suit::CLUBS | (Rank::SIX << 2));
-    hand.add(Suit::CLUBS | (Rank::TEN << 2));
-    PokerEngine::eval(hand.bit());
-    std::cout << hand.toString() << std::endl;
-    std::cout << PokerEngine::type(hand) << std::endl;
-    std::cout << hand.bit() << std::endl;
-    std::cout << hand.compressedBit() << std::endl;
+    // Hand hand;
+    // hand.add(Suit::SPADES | (Rank::TEN << 2));
+    // hand.add(Suit::HEARTS | (Rank::TEN << 2));
+    // hand.add(Suit::SPADES | (Rank::SIX << 2));
+    // hand.add(Suit::CLUBS | (Rank::SIX << 2));
+    // hand.add(Suit::CLUBS | (Rank::TEN << 2));
+    // PokerEngine::eval(hand.bit());
+    // std::cout << hand.toString() << std::endl;
+    // std::cout << PokerEngine::type(hand) << std::endl;
+    // std::cout << hand.bit() << std::endl;
+    // std::cout << hand.compressedBit() << std::endl;
 
-    hand.clear();
+    // hand.clear();
 
-    hand.add(Suit::CLUBS | (Rank::SIX << 2));
-    hand.add(Suit::DIAMONDS | (Rank::SIX << 2));
-    hand.add(Suit::SPADES | (Rank::SIX << 2));
-    hand.add(Suit::DIAMONDS | (Rank::TEN << 2));
-    hand.add(Suit::CLUBS | (Rank::TEN << 2));
-    PokerEngine::eval(hand.bit());
-    std::cout << hand.toString() << std::endl;
-    std::cout << PokerEngine::type(hand) << std::endl;
-    std::cout << hand.bit() << std::endl;
-    std::cout << hand.compressedBit() << std::endl;
+    // hand.add(Suit::CLUBS | (Rank::SIX << 2));
+    // hand.add(Suit::DIAMONDS | (Rank::SIX << 2));
+    // hand.add(Suit::SPADES | (Rank::SIX << 2));
+    // hand.add(Suit::DIAMONDS | (Rank::TEN << 2));
+    // hand.add(Suit::CLUBS | (Rank::TEN << 2));
+    // PokerEngine::eval(hand.bit());
+    // std::cout << hand.toString() << std::endl;
+    // std::cout << PokerEngine::type(hand) << std::endl;
+    // std::cout << hand.bit() << std::endl;
+    // std::cout << hand.compressedBit() << std::endl;
     return 0;
 }

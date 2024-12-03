@@ -129,6 +129,15 @@ int main() {
         }
     }
 
+    // Load card textures
+    for (int i = 0; i < 52; i++) {
+        if (!cardTextures[i].loadFromFile("assets/images/cards/" +
+                                          std::to_string(i) + ".png")) {
+            std::cerr << "Error loading card " << i + 1 << " image\n";
+            return -1;
+        }
+    }
+
     //-------------------------------------------------------------------------
     // Main menu init
     //-------------------------------------------------------------------------
@@ -312,6 +321,15 @@ int main() {
         playerProfiles[i].playerBetChipSprite.setScale(0.4f, 0.4f);
     }
 
+    // Demo hand
+    sf::Sprite cardSprites[5];
+
+    for (int i = 0; i < 5; i++) {
+        cardSprites[i].setTexture(getCardTexture(i));
+        cardSprites[i].setPosition(400.f + i * 100.f, 600.f);
+        // cardSprites[i].setScale(0.5f, 0.5f);
+    }
+
     Button foldButton(WINDOW_WIDTH / 2 - 200.f, 700.f, 100.f, 50.f, "Fold",
                       font);
     foldButton.setButtonColor(sf::Color::Black);
@@ -448,6 +466,11 @@ int main() {
                 window.draw(playerProfiles[i].playerBetChipText);
                 window.draw(playerProfiles[i].playerBetChipSprite);
             }
+
+            for (int i = 0; i < 5; i++) {
+                window.draw(cardSprites[i]);
+            }
+
             foldButton.draw(window);
             callButton.draw(window);
             raiseButton.draw(window);
