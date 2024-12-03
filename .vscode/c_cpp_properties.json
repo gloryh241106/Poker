@@ -7,13 +7,6 @@
             "intelliSenseMode": "windows-gcc-x64",
             "cStandard": "c17",
             "compilerArgs": [
-                "-lmingw32",
-                "-lSDL2main",
-                "-lSDL2",
-                "-lSDL2_image",
-                "-lSDL2_ttf",
-                "-lSDL2_gfx",
-                "-lSDL2_mixer"
             ]
         }
     ],

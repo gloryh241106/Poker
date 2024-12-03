@@ -8,10 +8,10 @@
 using namespace std;
 
 class User_Action {
-   private:
+private:
     unordered_map<string, string> User_Data_Storage;
 
-   public:
+public:
     void Choice();
     void SignUp();
     void Load_Data();
