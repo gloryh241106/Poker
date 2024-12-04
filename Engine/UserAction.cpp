@@ -2,7 +2,6 @@
 
 // Tai ten dang nhap va mat khau da duoc luu cua nguoi dung vao chuong trinh
 void User_Action::Load_Data() {
-	fstream myFile;
 	fstream myFile("UserData.txt", ios::out | ios::app); // Tao file neu chua ton tai file san
 	myFile.close(); // Dong lai file sau khi kiem tra
 	myFile.open("UserData.txt", ios::in); 
@@ -17,7 +16,6 @@ void User_Action::Load_Data() {
 
 // Tai so tien cua nguoi dung 
 void User_Action::Load_Money() {
-	fstream myFile;
 	fstream myFile("UserMoney.txt", ios::out | ios::app);
 	myFile.close(); 
 	myFile.open("UserMoney.txt", ios::in);
@@ -45,13 +43,13 @@ void User_Action::Save_Data(string UserName, string PassWord) {
 		cout << "Trouble in saving UserData!" << endl; 
 		cout << "Do you want to sign up again? (Y/N)" << endl;
 		do {
-			getline(cin, action);
+			cin >> action;
 			toupper(action);
 			if (action == 'Y')
 				SignUp();
-			if (action == 'N')
+			else if (action == 'N')
 				Choice();
-		} while (action != 'Y' && action != 'N')
+		} while (action != 'Y' && action != 'N');
 	}
 }
 
@@ -66,7 +64,7 @@ void User_Action::User_Money(string UserName, long long Money) {
 	}
 	else cout << "Trouble in saving UserMoney!" << endl;
 }
-string User_Action::HashPassword(string password) {
+/* string User_Action::HashPassword(string password) {
 	unsigned char hash[SHA256_DIGEST_LENGTH]; // Khoi tao mang Hash voi 256 bits
 	SHA256((unsigned char*)password.c_str(), password.size(), hash); // Goi ham ma hoa mat khau co san trong thu vien
 	stringstream ss;
@@ -75,12 +73,15 @@ string User_Action::HashPassword(string password) {
 	}
 	return ss.str();
 }
+*/
 void User_Action::SignUp() {
 	string UserName;
 	string PassWord;
 	string HashedPassWord;
 	bool flag = true;
 	do {
+		cin.clear();
+		cin.ignore(1000, '\n');
 		cout << "Enter your username:" << " ";
 		getline(cin, UserName);
 		if (UserName.empty()) {
@@ -109,10 +110,12 @@ void User_Action::SignUp() {
 			cout << "Error: Password must be at least 6 characters long. Please try again." << endl;
 			continue;
 		}
-
+		if (PassWord.find(' ') != string::npos) {
+			cout << "Error: Password cannot contain spaces. Please try again." << endl;
+			continue;
+		}
 		cout << "Sign up successfully" << endl; //Username chua tung duoc luu => khong trung ten
-		HashedPassWord = HashPassword(PassWord); // Ma hoa mat khau
-		Save_Data(UserName, HashedPassWord);
+		Save_Data(UserName, PassWord);
 		User_Money(UserName, 5000); // 5000dola mac dinh
 		break;
 	} while (true);
@@ -122,50 +125,66 @@ void User_Action::SignUp() {
 void User_Action::LogIn() {
 	string UserName, PassWord;
 	while (true) {
+		cin.clear();
+		cin.ignore(1000, '\n');
 		cout << "Enter your UserName" << endl;
 		getline(cin, UserName);
 		cout << "Enter your PassWord" << endl;
 		getline(cin, PassWord);
-		if (User_Data_Storage.find(UserName) != User_Data_Storage.end() && User_Data_Storage[UserName] == HashPassword(PassWord)) {
+		if (User_Data_Storage.find(UserName) != User_Data_Storage.end() && User_Data_Storage[UserName] == PassWord) {
 			cout << "Log in successfully" << endl; //Thong tin nhap trung khop voi thong tin da duoc luu
 			break;
 		}
 		else {
+		TryAgain :
 			cout << "Username or Password is not correct!" << endl;
 			cout << "Do you want to sign up ? (Y/N)" << endl;
 			char action;
-			getline(cin, action);
+			cin >> action;
+			if (cin.fail() || action != 'y' || action != 'Y' || action != 'n' || action != 'N') {
+				cin.clear();
+				cin.ignore(1000, '\n');
+				cout << "Invalid input, please try again" << endl;
+				goto TryAgain;
+			}
 			toupper(action);
 			do {
 				if (action == 'Y')
 					SignUp();
 				if (action == 'N')
 					Choice();
-			} while (action != 'Y' && action != 'N')
-
+			} while (action != 'Y' && action != 'N');
 		}
 	}
 }	
 
 void User_Action::Choice() {
-	Load_Data();
-	Load_Money();
-	Load_Data_NumGame();
+	//Load_Data();
+	//Load_Money();
+	//Load_Data_NumGame();
+	// 3 ham nay tai khi khoi dong game
 	string action;
 	bool CheckInput = false;
 	while (!CheckInput) {
-		cout << endl << "What you want to do? Please type 1 of 3 (Sign up/ Log in/ Out)" << endl;
+		cout << endl << "What you want to do? Please type 1 of 3 (SIGN UP/ LOG IN/ OUT)" << endl;
 		getline(cin, action);
-		if (action == "Sign up") {
+		if (action == "SIGN UP") {
 			SignUp();
 			CheckInput = true;
 		}
-		else if (action == "Log in") {
+		else if (action == "LOG IN") {
 			LogIn();
 			CheckInput = true;
 		}
-		else if (action == "Out") {
+		else if (action == "OUT") {
 			cout << "Thanks for using our game!" << endl;
+			break;
+		}
+		else {
+			cout << "Invalid input, please try again " << endl;
+			cin.clear();
+			cin.ignore(1000, '\n');
+			Choice();
 			break;
 		}
 	}
@@ -198,17 +217,17 @@ void User_Action::Display_Money(string UserName) {
 
 int User_Action::Num_Game_Played(string Username) {
 
-	return User_Game_Played[Username].second;
+	return User_Game_Played[Username];
 }
 
 int User_Action::Num_Game_Won(string Username) {
-	return User_Game_Won[Username].second;
+	return User_Game_Won[Username];
 }
 
 double User_Action::Win_Rate(string Username) {
-	int GamePlayed = Num_Game_Played(Username);
+	int GamePlayed = User_Game_Played[Username];
 	if (GamePlayed == 0) return 0.0;
-	return (Num_Game_Won(Username)) / (Num_Game_Played(Username));
+	return ((Num_Game_Won(Username)) / (Num_Game_Played(Username)));
 } 
 
 void User_Action::Display_Leader_Board(string Username) {
@@ -218,8 +237,7 @@ void User_Action::Display_Leader_Board(string Username) {
 		cout << x.first << " " << x.second << endl;
 }
 
-int User_Action::Load_Data_NumGame() {
-	fstream myFile;
+void User_Action::Load_Data_NumGame() {
 	fstream myFile("UserGamePlayed.txt", ios::out | ios::app); 
 	myFile.close(); 
 	myFile.open("UserGamePlayed.txt", ios::in);
@@ -232,5 +250,6 @@ int User_Action::Load_Data_NumGame() {
 		}
 		myFile.close();
 	}
+	else cout << "Can not open UserGamePlayed.txt file" << endl;
 }
 

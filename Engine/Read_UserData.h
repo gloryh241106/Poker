@@ -9,7 +9,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
-#include <openssl/sha.h>
+//#include <openssl/sha.h>
 using namespace std;
 
 class User_Action {
@@ -30,24 +30,12 @@ private:
     void User_Money(string, long long);
     void Update_Money(string, long long);
     void Display_Money(string);
-
-    //Log in/ Sign up/ Log out
-    //User data : Username and Money
+    int Num_Game_Played(string);
+    int Num_Game_Won(string);
+    double Win_Rate(string);
+    void Display_Leader_Board(string);
+    void Load_Data_NumGame();
+   
 };
-
-/* TODO:
-User data:
-- số game đã chơi (gamesPlayed) 
-- số game đã thắng (gamesWon)
-- winrate (tính từ hai thông số trên)
-- favoriteStrat ("chiến thuật" hay chơi nhất, e.g. flush, straight, ...)
-
-Hiển thị leaderboard gồm 10 người chơi tốt nhất (mấy ông cứ tạo dữ liệu giả bỏ
-vào :V)
-
-Có thể nghiên cứu thêm cách store dữ liệu vào file binary để tăng tốc độ,giảm
-kích cỡ,...
-https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/cppBinaryFileIO-2.html
-*/
 
 #endif

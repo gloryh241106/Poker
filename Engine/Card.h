@@ -8,7 +8,7 @@
 #include <deque>
 #include <string>
 
-#include "Utils.h"
+#include "Random.h"
 
 // Enum for Suit
 enum Suit { SPADES = 0, CLUBS, DIAMONDS, HEARTS };
@@ -30,9 +30,9 @@ enum Rank {
     ACE
 };
 
-std::string suitStringLookup[] = {"♠", "♣", "♦", "♥"};
-std::string rankStringLookup[] = {"2", "3",  "4", "5", "6", "7", "8",
-                                  "9", "10", "j", "q", "k", "a"};
+std::string suitStringLookup[] = { "♠", "♣", "♦", "♥" };
+std::string rankStringLookup[] = { "2", "3",  "4", "5", "6", "7", "8",
+                                  "9", "10", "j", "q", "k", "a" };
 
 int getCardRank(int card) {
     return card == -1 ? -1 : card >> 2;  // card / 4
@@ -50,15 +50,14 @@ std::string cardToString(int card) {
     return rankStringLookup[rank] + suitStringLookup[suit];
 }
 
-// Building deck
 class Deck {
-   private:
+private:
     int deck[52];
     int deckTop = 51;
     uint64_t deckBit = 0x000fffffffffffff;
     //                      AKQJT98765432
 
-   public:
+public:
     Deck() {
         for (int i = 0; i < 52; i++) {
             deck[i] = i;
@@ -78,7 +77,11 @@ class Deck {
         deckBit &= ~(1ll << deck[deckTop]);
         deckTop--;
     }
-
+    void addCard(int card, int Size) {
+        int i = 52;
+        deck[i - Size] = card;
+        i++;
+    }
     int draw() {
         int topCard = top();
         pop();
@@ -92,7 +95,11 @@ class Deck {
     }
 
     uint64_t bit() { return deckBit; }
-
+    void shuffle() {
+        // Shuffle the deck
+        std::shuffle(deck, deck + 52, Random::globalRNG);
+        deckTop = 51;
+    }
     // Generate a new deck
     void newDeck() {
         // Shuffle the deck
