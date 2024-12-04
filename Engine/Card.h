@@ -30,9 +30,8 @@ enum Rank {
     ACE
 };
 
-std::string suitStringLookup[] = { "♠", "♣", "♦", "♥" };
-std::string rankStringLookup[] = { "2", "3",  "4", "5", "6", "7", "8",
-                                  "9", "10", "j", "q", "k", "a" };
+std::string suitStringLookup[] = {"\6", "\5", "\4", "\3" };
+std::string rankStringLookup[] = {"2", "3",  "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
 
 int getCardRank(int card) {
     return card == -1 ? -1 : card >> 2;  // card / 4

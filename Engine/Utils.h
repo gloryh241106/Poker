@@ -26,6 +26,7 @@ namespace Random {
         std::string alphaNumeric =
             "01233456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         std::shuffle(alphaNumeric.begin(), alphaNumeric.end(), globalRNG);
+        
         return alphaNumeric.substr(0, 10);
     }
 }  // namespace Random

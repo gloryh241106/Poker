@@ -1,12 +1,118 @@
+#pragma once
+
 #ifndef GAMEMODE_H
 #define GAMEMODE_H
 
-#include "FiveCardStud.h"
+#include "PokerEngine.h"
+#include "FiveCardDraw.h"
 #include "PokerEngine.h"
 #include "BlackjackEngine.h"
 #include "CLI.h"
 
-void GameMode(bool &running) {
+void StandardPoker() {
+    CLI::clearScreen();
+
+    // Initialize players
+    std::cout << "How many players do you want to play with?"
+                << std::endl;
+    int playerCount = CLI::getOptionNum(2, 8);
+
+    std::vector<Player> player(playerCount, Player());
+    for (Player& p : player) {
+        p.hand = Hand();
+        p.name = Random::_name();
+        p.chips = 1000;
+        p.bet = 0;
+        p.folded = 0;
+        p.lost = 0;
+        p.allIn = 0;
+    }
+
+    // Initialize player's order
+    std::deque<int> playerOrder;
+    for (int i = 0; i < playerCount; i++) {
+        playerOrder.push_back(i);
+    }
+
+    drawSinglePokerGameRound(player, playerOrder, 5);
+}
+
+void FiveCardDrawGame() {
+    CLI::clearScreen();
+
+    // Initialize players
+    std::cout << "How many players do you want to play with?" << std::endl;
+    int playerCount = CLI::getOptionNum(2, 8);
+
+    std::vector<Player> player(playerCount, Player());
+    for (Player& p : player) {
+        p.hand = Hand();
+        p.name = Random::_name();
+        p.chips = 1000;
+        p.bet = 0;
+        p.folded = 0;
+        p.lost = 0;
+        p.allIn = 0;
+    }
+    
+    // Initialize player's order
+    std::deque<int> playerOrder;
+    for (int i = 0; i < playerCount; i++) {
+        playerOrder.push_back(i);
+    }
+
+    // Initialize deck
+    Deck deck;
+
+    int pot = 0;
+    // int dealerIndex = 0;
+
+    Phase1(player, playerOrder, deck);
+    Phase2(player, playerOrder, pot);
+}
+
+void FiveCardStudGame() {
+    CLI::clearScreen();
+
+    // Initialize players
+    std::cout << "How many players do you want to play with?" << std::endl;
+    int playerCount = CLI::getOptionNum(2, 8);
+
+    std::vector<Player> player(playerCount, Player());
+    for (Player& p : player) {
+        p.hand = Hand();
+        p.name = Random::_name();
+        p.chips = 1000;
+        p.bet = 0;
+        p.folded = 0;
+        p.lost = 0;
+        p.allIn = 0;
+    }
+
+    // Masking card
+    for (int i = 0; i < playerCount; i++) {
+        player[i].hand.setMask(0x01);
+    }
+
+    // Initialize player's order
+    std::deque<int> playerOrder;
+    for (int i = 0; i < playerCount; i++) {
+        playerOrder.push_back(i);
+    }
+
+    drawMultiplePokerGameRound(player, playerOrder, 5);
+}
+
+void BlackjackGame() {
+
+}
+
+void ExitGame(bool &exited) {
+    std::cout << "Thank you for playing our games!";
+    exited = true;
+}
+
+void GameMode(bool &exited) {
     int userChoice = CLI::getGameMode();    
     switch (userChoice) {
         case 1:
@@ -22,75 +128,10 @@ void GameMode(bool &running) {
             BlackjackGame();
             break;
         case 0: 
-            ExitGame(running);
+            ExitGame(exited);
             break;
         default:
             CLI::clearScreen();
     }
-}
-
-void StandardPoker() {
-    CLI::clearScreen();
-
-    // Initialize players
-    std::cout << "How many players do you want to play with?"
-                << std::endl;
-    int playerCount = CLI::getOptionNum(2, 8);
-
-    std::vector<Player> player(playerCount, Player {Hand(), Random::_name(), 1000, 0, 0, 0, 0});
-
-    // Masking card
-    for (int i = 0; i < playerCount; i++) {
-        player[i].hand.setMask(0x01);
-    }
-}
-
-void FiveCardDrawGame() {
-
-}
-
-void FiveCardStudGame() {
-    CLI::clearScreen();
-
-    // Initialize players
-    std::cout << "How many players do you want to play with?"
-                << std::endl;
-    int playerCount = CLI::getOptionNum(2, 8);
-
-    std::vector<Player> player(
-        playerCount, Player {Hand(), Random::_name(), 1000, 0, 0, 0, 0});
-
-    // Masking card
-    for (int i = 0; i < playerCount; i++) {
-        player[i].hand.setMask(0x01);
-    }
-
-    // Initialize player's order
-    std::deque<int> playerOrder;
-    for (int i = 0; i < playerCount; i++) {
-        playerOrder.push_back(i);
-    }
-    drawPokerGameRound(player, playerOrder, 5);
-
-    // Uncomment this to play multiple rounds---------------------------
-    
-    // int round = 1;
-    // while (player.size() > 1) {
-    //     std::cout << "\n\n"; // CLI::clearScreen();
-    //     std::cout << "Round " << round << std::endl;
-    //     CLI::sleep(1000);
-    //     gameRound(player, playerOrder, 5);
-    //     round++;
-    // }
-    
-    //------------------------------------------------------------------
-}
-
-void BlackjackGame() {
-
-}
-
-void ExitGame(bool &running) {
-    running = false;
 }
 #endif

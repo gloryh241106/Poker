@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <random>
 #include "Card.h"
-using namespace std;
+
 class Hand {
 private:
     uint8_t cardMask = 0x00;
@@ -13,11 +13,12 @@ private:
     //                      AKQJT98765432
 
 public:
-    int cards[5] = { -1, -1, -1, -1, -1 };
+    int cards[5] = {-1, -1, -1, -1, -1};
     int size = 0;
 
     bool add(int card) {
         if (size >= 5) return false;
+
         cards[size] = card;
         int t = size;
         size++;
@@ -35,6 +36,7 @@ public:
             int count = __builtin_popcountll(handBit & (0xfull << (i << 2)));
             compressed |= count << (i << 1);
         }
+
         return compressed;
     }
 
@@ -45,6 +47,7 @@ public:
             cards[i] = -1;
         }
     }
+    
     void erase(int card) {
         int index = -1;
         int size1 = 5;
@@ -53,11 +56,12 @@ public:
                 index = i;
 
         if (index == -1)
-            cout << "Can not find your card" << endl;
+            std::cout << "Can not find your card" << std::endl;
         for (int i = index; i < size1 - 1; i++)
             cards[i] = cards[i + 1];
         size1--;
     }
+
     void setMask(uint8_t mask) { cardMask = mask; }
     void clearMask() { cardMask = 0x00; }
 
