@@ -53,6 +53,27 @@ PlayerAction askPlayerAction(Player& player, const int& currBet,
         } else {
             return PlayerAction::FOLD;
         }
+    } else if (currBet >= player.chips) {
+        std::cout << "1. All In" << std::endl;
+        std::cout << "2. Fold" << std::endl;
+        int op = CLI::getOptionNum(1, 2);
+        if (op == 1) {
+            return PlayerAction::ALL_IN;
+        } else {
+            return PlayerAction::FOLD;
+        }
+    } else if (currBet + minRaiseDiff >= player.chips) {
+        std::cout << "1. Call" << std::endl;
+        std::cout << "2. All In" << std::endl;
+        std::cout << "3. Fold" << std::endl;
+        int op = CLI::getOptionNum(1, 3);
+        if (op == 1) {
+            return PlayerAction::CALL;
+        } else if (op == 2) {
+            return PlayerAction::ALL_IN;
+        } else {
+            return PlayerAction::FOLD;
+        }
     } else {
         std::cout << "1. Call" << std::endl;
         std::cout << "2. Raise" << std::endl;
@@ -202,7 +223,7 @@ int drawPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder,
                 minRaiseDiff = raise - currBet;
                 currBet = raise;
                 player[playerOrder.front()].bet = currBet;
-                if (currBet == player[playerOrder.front()].chips) {  // ALL IN
+                if (currBet >= player[playerOrder.front()].chips) {  // ALL IN
                     player[playerOrder.front()].allIn = 1;
                 }
                 live = true;
@@ -454,17 +475,16 @@ int main() {
                       << std::endl;
             int playerCount = CLI::getOptionNum(2, 8);
 
-            std::vector<Player> player(
-                playerCount, Player());
-	    for(Player &p: player){
-	    	p.hand = Hand();
-	    	p.name = Random::_name();
-	    	p.chips = 1000;
-	    	p.bet = 0;
-	    	p.folded = 0;
-	    	p.lost = 0;
-	    	p.allIn = 0;
-	    }
+            std::vector<Player> player(playerCount, Player());
+            for (Player& p : player) {
+                p.hand = Hand();
+                p.name = Random::_name();
+                p.chips = 1000;
+                p.bet = 0;
+                p.folded = 0;
+                p.lost = 0;
+                p.allIn = 0;
+            }
 
             // Masking card
             for (int i = 0; i < playerCount; i++) {
