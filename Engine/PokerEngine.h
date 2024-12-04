@@ -49,6 +49,8 @@ const uint64_t FLUSH_MASK = 0x0001111111111111;
 
 // Calculate the type and point of a poker hand
 void eval(uint64_t& handBit) {
+    // Clear the type
+    handBit &= HAND_MASK;
     // Flush check
     bool isFlush = false;
     for (int i = 0; i < 4; i++) {
