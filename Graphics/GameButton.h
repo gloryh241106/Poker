@@ -2,10 +2,50 @@
 #define __GAMEBUTTON__
 
 #include "RenderWindow.h"
-#include "RenderButton.h"
+#include "Button.h"
 
-void StartGame(RenderWindow window) {
+void onImageClick() {
+    std::cout << "Image clicked" << '\n';
+}
+
+// Start Screen
+void InitGame(RenderWindow window, bool &gameRunning, SDL_Event event) {
     // Render and display image, entities
+    SDL_Texture* gameInit = window.loadTexture("Assets/Screen/Game_Init.png");
+    Button startGame = {window.getRenderer(), "Assets/Button/Button_StartGame.png", 800, 100, 300, 100};
+    Button tutorial = {window.getRenderer(), "Assets/Button/Button_Tutorial.png", 800, 250, 300, 100};
+    Button leaderboard = {window.getRenderer(), "Assets/Button/Button_Leaderboard.png", 800, 400, 300, 100};
+
+    // Clear
+    window.clear();
+
+    while (SDL_PollEvent(&event)) {
+        // Quit
+        if (event.type == SDL_QUIT) 
+            gameRunning = false;
+        // If not quit, check which mode player choose
+        else if (startGame.isClicked(event)) {
+            GameMenu(window, gameRunning, event);
+        }
+        else if (tutorial.isClicked(event)) {
+            Tutorial(window, gameRunning, event);
+        }
+        else if (leaderboard.isClicked(event)) {
+            Leaderboard(window, gameRunning, event);
+        }
+    }
+    
+    // Render
+    window.renderScreen(gameInit);
+    startGame.renderButton();
+    tutorial.renderButton();
+    leaderboard.renderButton();
+
+    // Display
+    window.display();
+}
+
+void GameMenu(RenderWindow window, bool &gameRunning, SDL_Event event) {
     SDL_Texture* gameMenu = window.loadTexture("Assets/Screen/Game_Init.png");
     Button startGame = {window.getRenderer(), "Assets/Button/Button_StartGame.png", 800, 100, 300, 100};
     Button tutorial = {window.getRenderer(), "Assets/Button/Button_Tutorial.png", 800, 250, 300, 100};
@@ -13,6 +53,22 @@ void StartGame(RenderWindow window) {
 
     // Clear
     window.clear();
+
+    while (SDL_PollEvent(&event)) {
+        // Quit
+        if (event.type == SDL_QUIT) 
+            gameRunning = false;
+        // If not quit, check which mode player choose
+        else if (startGame.isClicked(event)) {
+            GameMenu(window, gameRunning, event);
+        }
+        else if (tutorial.isClicked(event)) {
+            Tutorial(window, gameRunning, event);
+        }
+        else if (leaderboard.isClicked(event)) {
+            Leaderboard(window, gameRunning, event);
+        }
+    }
 
     // Render
     window.renderScreen(gameMenu);
@@ -24,4 +80,14 @@ void StartGame(RenderWindow window) {
     window.display();
 }
 
+// void Tutorial(RenderWindow window, bool &gameRunning, SDL_Event event) {
+//     SDL_Texture* gameMenu = window.loadTexture("Assets/Screen/Game_Init.png");
+//     Button startGame = {window.getRenderer(), "Assets/Button/Button_StartGame.png", 800, 100, 300, 100};
+//     Button tutorial = {window.getRenderer(), "Assets/Button/Button_Tutorial.png", 800, 250, 300, 100};
+//     Button leaderboard = {window.getRenderer(), "Assets/Button/Button_Leaderboard.png", 800, 400, 300, 100};
+// }
+
+// void Leaderboard(RenderWindow window, bool &gameRunning, SDL_Event event) {
+
+// }
 #endif

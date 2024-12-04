@@ -5,11 +5,20 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
+#include <vector>
+#include <sstream>
+#include <iomanip>
+#include <openssl/sha.h>
 using namespace std;
 
 class User_Action {
-   private:
+private:
     unordered_map<string, string> User_Data_Storage;
+    unordered_map<string, long long> User_Money_Data;
+    unordered_map<string, int> User_Game_Played;
+    unordered_map<string, int> User_Game_Won;
+    vector<pair<double, string>> Board;
 
    public:
     void Choice();
@@ -17,13 +26,18 @@ class User_Action {
     void Load_Data();
     void Save_Data(string, string);
     void LogIn();
+    void Load_Money();
+    void User_Money(string, long long);
+    void Update_Money(string, long long);
+    void Display_Money(string);
+
+    //Log in/ Sign up/ Log out
+    //User data : Username and Money
 };
 
 /* TODO:
 User data:
-- tên (name)
-- điểm
-- số game đã chơi (gamesPlayed)
+- số game đã chơi (gamesPlayed) 
 - số game đã thắng (gamesWon)
 - winrate (tính từ hai thông số trên)
 - favoriteStrat ("chiến thuật" hay chơi nhất, e.g. flush, straight, ...)

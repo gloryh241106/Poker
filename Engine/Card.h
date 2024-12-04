@@ -8,7 +8,7 @@
 #include <deque>
 #include <string>
 
-#include "Random.h"
+#include "Utils.h"
 
 // Enum for Suit
 enum Suit { SPADES = 0, CLUBS, DIAMONDS, HEARTS };
@@ -50,6 +50,7 @@ std::string cardToString(int card) {
     return rankStringLookup[rank] + suitStringLookup[suit];
 }
 
+// Building deck
 class Deck {
    private:
     int deck[52];

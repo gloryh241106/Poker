@@ -8,7 +8,7 @@
 #include <thread>
 
 namespace CLI {
-void clearScreen() { std::cout << "\x1b[2J\x1b[H"; }
+void clearScreen() { system("cls"); }
 
 void sleep(int milliseconds) {
     // https://stackoverflow.com/a/10613664
@@ -17,25 +17,25 @@ void sleep(int milliseconds) {
 
 // Ask user fo a number in range [n,m]
 int getOptionNum(int n, int m) {
-    int op = -1;
-    while (op < n || op > m) {
+    int userChoice = -1;
+    while (userChoice < n || userChoice > m) {
         if (n != m)
             std::cout << "(" << n << " - " << m << "): ";
         else
             std::cout << "(" << n << "): ";
-        std::cin >> op;
+        std::cin >> userChoice;
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
     }
-    return op;
+    return userChoice;
 }
 
 bool getOptionYN() {
-    std::string opStr;
+    std::string userChoiceStr;
     while (1) {
         std::cout << "(y/n): ";
-        std::getline(std::cin, opStr);
-        if (opStr == "y" || opStr == "Y") return 1;
-        if (opStr == "n" || opStr == "N") return 0;
+        std::getline(std::cin, userChoiceStr);
+        if (userChoiceStr == "y" || userChoiceStr == "Y") return 1;
+        if (userChoiceStr == "n" || userChoiceStr == "N") return 0;
     }
     return 0;
 }
@@ -67,28 +67,31 @@ void printTutorial() {
 
 int getMainOption() {
     std::cout << "Main menu:\n\n";
-    std::cout << "1.New game\n";
-    std::cout << "2.Tutorial\n";
-    std::cout << "3.Leaderboard\n";
-    std::cout << "0.Exit\n\n";
+    std::cout << "1. New game\n";
+    std::cout << "2. Tutorial\n";
+    std::cout << "3. Leaderboard\n";
+    std::cout << "0. Exit\n\n";
     return getOptionNum(0, 3);
 }
 
 int getPlayerMode() {
     std::cout << "Play against:\n";
-    std::cout << "1.Humans (PVP)\n";
-    std::cout << "2.Bots (PVE)\n";
+    std::cout << "1. Humans (PVP)\n";
+    std::cout << "2. Bots (PVE)\n";
     return getOptionNum(1, 2);
 }
 
 int getGameMode() {
     std::cout << "Gamemode:\n";
-    std::cout << "1.POKER\n";
+    std::cout << "1. Standard Poker\n";
+    std::cout << "2. Five Card Draw Poker\n";
+    std::cout << "3. Five Card Stud Poker\n";
+    std::cout << "4. Blackjack\n";
     return getOptionNum(1, 1);
 }
 
 int getPlayerNum() {
-    std::cout << "Number of players ";
+    std::cout << "Number of players: ";
     return getOptionNum(2, 8);
 }
 }  // namespace CLI
