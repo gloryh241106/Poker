@@ -159,9 +159,9 @@ void User_Action::LogIn() {
 }	
 
 void User_Action::Choice() {
-	//Load_Data();
-	//Load_Money();
-	//Load_Data_NumGame();
+	Load_Data();
+	Load_Money();
+	Load_Data_NumGame();
 	// 3 ham nay tai khi khoi dong game
 	std::string action;
 	bool CheckInput = false;

@@ -12,15 +12,14 @@
 #include <sstream>
 #include <iomanip>
 
-class User_Action {
-private:
-    std::unordered_map<std::string, std::string> User_Data_Storage;
-    std::unordered_map<std::string, long long> User_Money_Data;
-    std::unordered_map<std::string, int> User_Game_Played;
-    std::unordered_map<std::string, int> User_Game_Won;
-    std::vector<std::pair<double, std::string>> Board;
+std::unordered_map<std::string, std::string> User_Data_Storage;
+std::unordered_map<std::string, long long> User_Money_Data;
+std::unordered_map<std::string, int> User_Game_Played;
+std::unordered_map<std::string, int> User_Game_Won;
+std::vector<std::pair<double, std::string>> Board;
 
-public:
+class User_Action {
+  public:
     void Choice();
     void SignUp();
     void Load_Data();

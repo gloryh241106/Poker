@@ -5,7 +5,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
-
+#include "Read_UserData.h"
 #include "CLI.h"
 #include "Card.h"
 #include "Random.h"
@@ -309,7 +309,7 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
     }
 
     for (int i : playerRank) {
-        std::cout << i << ' ';
+        std::cout << i+1 << ' ';
     }
 
     std::cout << std::endl;
@@ -318,14 +318,24 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
     int i = 0;
     while (i < playerCount && pot > 0) {
         player[playerRank[i]].showdownBet = std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
+        long long MoneyUserTemp = player[playerRank[i]].chips;
         player[playerRank[i]].chips += player[playerRank[i]].showdownBet;
+        
+        //Check if player chips after pot distributed increase or not. If increase means player won the game, else they lost.
+        if (player[playerRank[i]].chips >= MoneyUserTemp)
+            User_Game_Won[player[playerRank[i]].name]++;
+
+        User_Money_Data[player[playerRank[i]].name] = player[playerRank[i]].chips; // Update and save user money
+        User_Game_Played[player[playerRank[i]].name]++; // Update and save User Game Played (in order to calculate User Win Rate)
+
         pot -= std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
         i--;
     }
 
     // Display the chips
     for (int i = 0; i < playerCount; i++) {
-        std::cout << "Player " << i << " has " << player[i].chips << " chips" << std::endl;
+        std::cout << "Player " << i << " has " << player[i].chips << " chips" << std::endl;  
+
     }
 
     // Remove lost players

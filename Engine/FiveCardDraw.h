@@ -164,10 +164,10 @@ void Phase2(std::vector<Player>& players, std::deque<int>& playerOrder, int& pot
         reinput: 
 
             if (highestBet == 0) {
-                std::cout << "Actions: [1] Check, [2] Bet, [3] Fold, [4] All in" << std::endl;
+                std::cout << "Actions: [1] FOLD, [2] CHECK, [4] BET, [6] ALL IN " << std::endl;
             }
             else {
-                std::cout << "Actions: [1] Call, [2] Raise, [3] Fold, [4] All in" << std::endl;
+                std::cout << "Actions: [1] FOLD, [3] CALL, [5] RAISE, [6] ALL IN" << std::endl;
             }
 
             int action;
