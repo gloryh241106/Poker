@@ -13,7 +13,7 @@
 #include "Card.h"
 #include "Hand.h"
 #include "Player.h"
-#include "PokerEngine.h"
+#include "PokerGameplay.h"
 #include "Random.h"
 
 void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck,
