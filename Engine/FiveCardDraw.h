@@ -95,49 +95,15 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder,
     // Shuffle card
     deck.shuffle();
 
-    // Deal card for each players   
+    // Deal card for each players
     int playerCount = players.size();
     for (int i = 0; i < playerCount; i++) {
         for (int j = 0; j < 5; j++) {
             players[playerOrder.front()].hand.add(deck.draw());
         }
-        dequeNext(playerOrder);
-    }
+
     TryAgain:
         //  Check and allow draw card
-<<<<<<< HEAD
-    for (int i = 0; i < playerCount; ++i) {
-        //Player& currentPlayer = players[i];
-        std::cout << "CurrentPlayer is player " << i << std::endl;
-        std::cout << "Do you want to draw? (Y/N) " << std::endl;
-        char action;
-        std::cin >> action;
-
-        if (toupper(action) == 'Y') {
-            int number = 0;
-            do {
-                std::cout << "Choose number of cards to remove (1 to 5): " << std::endl;
-                std::cin >> number;
-
-                if (number < 1 || number > 5 || std::cin.fail()) {
-                    std::cout << "Invalid number. Please choose between 1 and 5." << std::endl;
-                    std::cin.clear();
-                    std::cin.ignore(1000, '\n');
-                    continue;
-                }
-
-                std::vector<int> cardsToRemove;
-                std::cout << "Enter the card values to remove: " << std::endl;
-                for (int j = 0; j < number; j++) {
-                InputCardValueToRemove:
-                    int cardValue;
-                    std::cin >> cardValue;
-
-                    if (!std::cin.fail())
-                        cardsToRemove.push_back(cardValue);
-                    else {
-                        std::cout << "Invalid output, enter again" << std::endl;
-=======
         for (int i = 0; i < playerCount; ++i) {
             // Player& currentPlayer = players[i];
             std::cout << "CurrentPlayer is player " << i << std::endl;
@@ -156,22 +122,10 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder,
                         std::cout
                             << "Invalid number. Please choose between 1 and 5."
                             << std::endl;
->>>>>>> 25d84c07e700e6927e8fddefe76398d50833b9b2
                         std::cin.clear();
                         std::cin.ignore(1000, '\n');
-                        goto InputCardValueToRemove;
+                        continue;
                     }
-<<<<<<< HEAD
-                }
-                replaceCards(players, i, deck, cardsToRemove);
-            } while (number < 1 || number > 5 || std::cin.fail());
-        }
-        else if (toupper(action) == 'N') continue;
-        else {
-            std::cin.clear();
-            std::cin.ignore(1000, '\n'); 
-            goto TryAgain;
-=======
 
                     std::vector<int> cardsToRemove;
                     std::cout << "Enter the card values to remove: "
@@ -200,8 +154,9 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder,
                 std::cin.ignore(1000, '\n');
                 goto TryAgain;
             }
->>>>>>> 25d84c07e700e6927e8fddefe76398d50833b9b2
         }
+
+        dequeNext(playerOrder);
     }
 }
 
