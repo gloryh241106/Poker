@@ -3,23 +3,25 @@
 #ifndef READ_USERDATA_H
 #define READ_USERDATA_H
 
+#include <algorithm>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <unordered_map>
-#include <algorithm>
 #include <vector>
-#include <sstream>
-#include <iomanip>
 
-std::unordered_map<std::string, std::string> User_Data_Storage;
-std::unordered_map<std::string, long long> User_Money_Data;
-std::unordered_map<std::string, int> User_Game_Played;
-std::unordered_map<std::string, int> User_Game_Won;
-std::vector<std::pair<double, std::string>> Board;
+#include "CLI.h"
+
+extern std::unordered_map<std::string, std::string> User_Data_Storage;
+extern std::unordered_map<std::string, long long> User_Money_Data;
+extern std::unordered_map<std::string, int> User_Game_Played;
+extern std::unordered_map<std::string, int> User_Game_Won;
+extern std::vector<std::pair<double, std::string>> Board;
 
 class User_Action {
-  public:
+   public:
     void Choice();
     void SignUp();
     void Load_Data();

@@ -8,8 +8,8 @@
 #include <thread>
 
 namespace CLI {
-    void clearScreen() { 
-        system("cls"); 
+    void clearScreen() {
+        system("cls");
     }
 
     void sleep(int milliseconds) {
@@ -54,11 +54,11 @@ namespace CLI {
         std::cout << "  ____ _               _                    _             \n";
         std::cout << " / ___| | __ _ ___ ___(_) ___   _ __   ___ | | _____ _ __ \n";
         std::cout << "| |   | |/ _` / __/ __| |/ __| | '_ \\ / _ \\| |/ / _ \\ "
-                    "'__|\n";
+            "'__|\n";
         std::cout << "| |___| | (_| \\__ \\__ \\ | (__  | |_) | (_) |   <  __/ "
-                    "|   \n";
+            "|   \n";
         std::cout << " \\____|_|\\__,_|___/___/_|\\___| | .__/ "
-                    "\\___/|_|\\_\\___|_|   \n";
+            "\\___/|_|\\_\\___|_|   \n";
         std::cout << "                               |_|                        \n";
         std::cout << "\n";
     }
@@ -92,7 +92,7 @@ namespace CLI {
 
     int getPlayerNum() {
         std::cout << "Number of players: ";
-        
+
         return getOptionNum(2, 8);
     }
 }  // namespace CLI

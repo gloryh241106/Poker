@@ -37,7 +37,7 @@ void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, con
 
     // Draw exactly the number of card has been removed (example: removed 3 cards so draw 3 cards)
     int numToDraw = removedCards.size();
-    for (int i = 0; i < numToDraw; i++) 
+    for (int i = 0; i < numToDraw; i++)
         players[orderPlayer].hand.add(deck.draw());
 }
 
@@ -60,25 +60,25 @@ void BackTrackingBet(std::vector<Player>& players, std::deque<int>& playerOrder,
             }
 
             switch (Choose) {
-                case 1: 
-                    PrevPlayer.folded = true;
-                    break;
-                case 2: {
-                    int callAmount = highestBet - PrevPlayer.bet;
-                    if (callAmount > PrevPlayer.chips) callAmount = PrevPlayer.chips;
-                    PrevPlayer.chips -= callAmount;
-                    PrevPlayer.bet += callAmount;
-                    pot += callAmount;
-                }
-                    break;
-                case 3: {
-                    pot += PrevPlayer.chips;
-                    PrevPlayer.bet += PrevPlayer.chips;
-                    PrevPlayer.chips = 0;
-                    PrevPlayer.allIn = true;
-                    highestBet = std::max(highestBet, PrevPlayer.bet);
-                }
-                    break;
+            case 1:
+                PrevPlayer.folded = true;
+                break;
+            case 2: {
+                int callAmount = highestBet - PrevPlayer.bet;
+                if (callAmount > PrevPlayer.chips) callAmount = PrevPlayer.chips;
+                PrevPlayer.chips -= callAmount;
+                PrevPlayer.bet += callAmount;
+                pot += callAmount;
+            }
+                  break;
+            case 3: {
+                pot += PrevPlayer.chips;
+                PrevPlayer.bet += PrevPlayer.chips;
+                PrevPlayer.chips = 0;
+                PrevPlayer.allIn = true;
+                highestBet = std::max(highestBet, PrevPlayer.bet);
+            }
+                  break;
             }
         }
     }
@@ -97,8 +97,8 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
         }
         dequeNext(playerOrder);
     }
-    TryAgain:
-        //  Check and allow draw card
+TryAgain:
+    //  Check and allow draw card
     for (int i = 0; i < playerCount; ++i) {
         //Player& currentPlayer = players[i];
         std::cout << "CurrentPlayer is player " << i << std::endl;
@@ -141,7 +141,7 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
         else if (toupper(action) == 'N') continue;
         else {
             std::cin.clear();
-            std::cin.ignore(1000, '\n'); 
+            std::cin.ignore(1000, '\n');
             goto TryAgain;
         }
     }
@@ -158,8 +158,8 @@ void Phase2(std::vector<Player>& players, std::deque<int>& playerOrder, int& pot
             //if (currentPlayer.folded || currentPlayer.allIn) continue;
 
             std::cout << currentPlayer.name << ", Current bet: " << highestBet << ", Your chips: " << currentPlayer.chips << std::endl;
-        
-        reinput: 
+
+        reinput:
 
             if (highestBet == 0) {
                 std::cout << "Actions: [1] FOLD, [2] CHECK, [4] BET, [6] ALL IN " << std::endl;
@@ -178,84 +178,84 @@ void Phase2(std::vector<Player>& players, std::deque<int>& playerOrder, int& pot
             }
 
             switch (action) {
-                case 1:  // Fold
-                    currentPlayer.folded = true;
-                    break;
+            case 1:  // Fold
+                currentPlayer.folded = true;
+                break;
 
-                case 2:  // Check
-                    if (highestBet != 0) {
-                        std::cout << "You cannot check, you need to call or raise." << std::endl;
-                        --i;  // Repeat turn
-                    }
-                    break;
-
-                case 3:  // Call
-                {
-                    int callAmount = highestBet - currentPlayer.bet;
-                    if (callAmount > currentPlayer.chips) callAmount = currentPlayer.chips;
-                    currentPlayer.chips -= callAmount;
-                    currentPlayer.bet += callAmount;
-                    pot += callAmount;
+            case 2:  // Check
+                if (highestBet != 0) {
+                    std::cout << "You cannot check, you need to call or raise." << std::endl;
+                    --i;  // Repeat turn
                 }
                 break;
 
-                case 4:  // Bet
-                {
-                    if (highestBet != 0) {
-                        std::cout << "You are not allow to bet, please choose another action" << std::endl;
+            case 3:  // Call
+            {
+                int callAmount = highestBet - currentPlayer.bet;
+                if (callAmount > currentPlayer.chips) callAmount = currentPlayer.chips;
+                currentPlayer.chips -= callAmount;
+                currentPlayer.bet += callAmount;
+                pot += callAmount;
+            }
+            break;
+
+            case 4:  // Bet
+            {
+                if (highestBet != 0) {
+                    std::cout << "You are not allow to bet, please choose another action" << std::endl;
+                    --i;
+                }
+                else {
+                    int betAmount;
+                    std::cout << "Enter bet amount: ";
+                    std::cin >> betAmount;
+
+                    if (betAmount > currentPlayer.chips || betAmount <= 0) {
+                        std::cout << "Invalid bet amount." << std::endl;
                         --i;
-                    }
-                    else {
-                        int betAmount;
-                        std::cout << "Enter bet amount: ";
-                        std::cin >> betAmount;
-
-                        if (betAmount > currentPlayer.chips || betAmount <= 0) {
-                            std::cout << "Invalid bet amount." << std::endl;
-                            --i;
-                            break;
-                        }
-
-                        currentPlayer.chips -= betAmount;
-                        currentPlayer.bet += betAmount;
-                        pot += betAmount;
-                        highestBet = std::max(highestBet, currentPlayer.bet);
-                        BackTrackingBet(players, playerOrder, pot, highestBet, i);
                         break;
                     }
-                }
-                case 5:  // Raise
-                {
-                    int raiseAmount;
-                    std::cout << "Enter raise amount: ";
-                    std::cin >> raiseAmount;
 
-                    int totalBet = raiseAmount + highestBet;
-                    if (totalBet > currentPlayer.chips) totalBet = currentPlayer.chips;
-
-                    currentPlayer.chips -= totalBet;
-                    currentPlayer.bet += totalBet;
-                    pot += totalBet;
+                    currentPlayer.chips -= betAmount;
+                    currentPlayer.bet += betAmount;
+                    pot += betAmount;
                     highestBet = std::max(highestBet, currentPlayer.bet);
                     BackTrackingBet(players, playerOrder, pot, highestBet, i);
+                    break;
                 }
-                break;
+            }
+            case 5:  // Raise
+            {
+                int raiseAmount;
+                std::cout << "Enter raise amount: ";
+                std::cin >> raiseAmount;
 
-                case 6:  // All-in
-                {   
-                    pot += currentPlayer.chips;
-                    currentPlayer.bet += currentPlayer.chips;
-                    currentPlayer.chips = 0;
-                    currentPlayer.allIn = true;
-                    highestBet = std::max(highestBet, currentPlayer.bet);
-                    BackTrackingBet(players, playerOrder, pot, highestBet, i);
-                }
-                break;
+                int totalBet = raiseAmount + highestBet;
+                if (totalBet > currentPlayer.chips) totalBet = currentPlayer.chips;
+
+                currentPlayer.chips -= totalBet;
+                currentPlayer.bet += totalBet;
+                pot += totalBet;
+                highestBet = std::max(highestBet, currentPlayer.bet);
+                BackTrackingBet(players, playerOrder, pot, highestBet, i);
+            }
+            break;
+
+            case 6:  // All-in
+            {
+                pot += currentPlayer.chips;
+                currentPlayer.bet += currentPlayer.chips;
+                currentPlayer.chips = 0;
+                currentPlayer.allIn = true;
+                highestBet = std::max(highestBet, currentPlayer.bet);
+                BackTrackingBet(players, playerOrder, pot, highestBet, i);
+            }
+            break;
             }
         }
         bettingRound = false;
     }
     showdown(players, playerOrder, pot);
-}  
+}
 
 #endif
