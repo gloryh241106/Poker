@@ -19,7 +19,7 @@
 
 // Here are the functions to calculate a xi dach hand value
 
-enum XiDachHandType { QUAC, UNDERVALUE, NORMAL, XI_DACH, XI_BAN, NGU_LINH };
+enum XiDachHandType { QUAC = 0, UNDERVALUE, NORMAL, XI_DACH, XI_BAN, NGU_LINH };
 
 namespace XiDachEngine {
 // Pair of aces, insta win
@@ -117,6 +117,14 @@ std::pair<int, int> evalXiDach(const Hand& hand) {
     if (total < 16) return std::make_pair(XiDachHandType::UNDERVALUE, total);
     if (total > 21) return std::make_pair(XiDachHandType::QUAC, total);
     return std::make_pair(XiDachHandType::NORMAL, total);
+}
+
+std::string type(std::pair<int, int> eval) {
+    if (eval.first == XiDachHandType::XI_BAN) return "(Xi Ban)";
+    if (eval.first == XiDachHandType::XI_DACH) return "(Xi Dach)";
+    if (eval.first == XiDachHandType::QUAC) return "(Quac)";
+    if (eval.first == XiDachHandType::NGU_LINH) return "(Ngu linh)";
+    return "";
 }
 }  // namespace XiDachEngine
 
