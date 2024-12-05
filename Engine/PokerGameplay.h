@@ -5,38 +5,16 @@
 #include <iostream>
 #include <thread>
 #include <vector>
-#include "Read_UserData.h"
+
 #include "CLI.h"
 #include "Card.h"
-#include "Random.h"
 #include "Hand.h"
-#include "EvaluateHand.h"
+#include "Player.h"
+#include "PokerEngine.h"
+#include "Random.h"
+#include "deque_helper.h"
 
-enum PlayerAction { NONE, CHECK, CALL, BET, RAISE, FOLD, ALL_IN };
-
-struct Player {
-    Hand hand;
-    std::string name;
-    int chips;
-    int bet;
-    bool folded;
-    bool lost;
-    bool allIn;
-    PlayerAction action = NONE;
-    int showdownBet = 0;
-};
-
-void dequeNext(std::deque<int>& q) {
-    int front = q.front();
-    q.pop_front();
-    q.push_back(front);
-}
-
-void dequePrev(std::deque<int>& q) {
-    int back = q.back();
-    q.pop_back();
-    q.push_front(back);
-}
+enum class PlayerAction { NONE, CHECK, CALL, BET, RAISE, FOLD, ALL_IN };
 
 PlayerAction askPlayerAction(Player& player, const int& currBet, const int& minRaiseDiff, bool& preflop) {
     if (currBet == 0) {
@@ -96,7 +74,7 @@ PlayerAction askPlayerAction(Player& player, const int& currBet, const int& minR
 // https://en.wikipedia.org/wiki/Betting_in_poker
 // Returns the index of the player who won the round
 // Otherwise returns -1
-int drawPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, int blind, bool preflop, int& pot, bool isFiveCardStud) {
+int studPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, int blind, bool preflop, int& pot, bool isFiveCardStud) {
     int playerCount = player.size();
     int playerInGame = playerOrder.size();
 
@@ -153,22 +131,19 @@ int drawPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, 
                               << " hand: " << player[i].hand.toString(1)
                               << std::endl;
                 }
-
             }
 
             CLI::sleep(1000);
             // Print the player hand for betting
             std::cout << "\n\n";
-            std::cout << "Player " << playerOrder.front() << "'s turn "
-                      << std::endl;
-            //   << betPlayerCount
+            std::cout << "Player " << playerOrder.front()
+                      << "'s turn " << std::endl;
             std::cout << "Your hand: "
-                      << player[playerOrder.front()].hand.toString(1)
-                      << std::endl;
-            std::cout << "Your remaining chips: "
+                      << player[playerOrder.front()].hand.toString(1) << std::endl;
+            std::cout << "Your remaining chips: " 
                       << player[playerOrder.front()].chips << std::endl;
-            std::cout << "You bet: " << player[playerOrder.front()].bet
-                      << std::endl;
+            std::cout << "You bet: " 
+                      << player[playerOrder.front()].bet << std::endl;
             std::cout << "Pot: " << pot << std::endl;
 
             if (player[playerOrder.front()].allIn) {
@@ -185,18 +160,16 @@ int drawPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, 
             std::cout << "Current bet amount: " << currBet << std::endl;
             std::cout << "What do you want to do?" << std::endl;
 
-            PlayerAction op = askPlayerAction(player[playerOrder.front()],
-                                              currBet, minRaiseDiff, preflop);
-
+            PlayerAction op = askPlayerAction(player[playerOrder.front()], currBet, minRaiseDiff, preflop);
             std::cout << std::endl;
 
-            if (op == PlayerAction::CHECK || op == PlayerAction::CALL) {  // CHECK/CALL
+            if (op == PlayerAction::CHECK ||
+                op == PlayerAction::CALL) {  // CHECK/CALL
                 player[playerOrder.front()].bet = currBet;
 
                 if (player[playerOrder.front()].chips <= currBet) {  // ALL IN
                     player[playerOrder.front()].allIn = 1;
-                    player[playerOrder.front()].bet =
-                        player[playerOrder.front()].chips;
+                    player[playerOrder.front()].bet = player[playerOrder.front()].chips;
                 }
 
                 // if (playerOrder.front() == raisedPlayer) {
@@ -219,7 +192,8 @@ int drawPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, 
                 live = true;
                 raisedPlayer = playerOrder.front();
             } else if (op == PlayerAction::RAISE) {
-                std::cout << "Min raise: " << currBet + minRaiseDiff << std::endl;
+                std::cout << "Min raise: " << currBet + minRaiseDiff
+                          << std::endl;
                 std::cout << "How much do you want to raise to?" << std::endl;
                 int raise = CLI::getOptionNum(currBet + minRaiseDiff, player[playerOrder.front()].chips);
                 minRaiseDiff = raise - currBet;
@@ -309,7 +283,7 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
     }
 
     for (int i : playerRank) {
-        std::cout << i+1 << ' ';
+        std::cout << i << ' ';
     }
 
     std::cout << std::endl;
@@ -318,24 +292,14 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
     int i = 0;
     while (i < playerCount && pot > 0) {
         player[playerRank[i]].showdownBet = std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
-        long long MoneyUserTemp = player[playerRank[i]].chips;
         player[playerRank[i]].chips += player[playerRank[i]].showdownBet;
-        
-        //Check if player chips after pot distributed increase or not. If increase means player won the game, else they lost.
-        if (player[playerRank[i]].chips >= MoneyUserTemp)
-            User_Game_Won[player[playerRank[i]].name]++;
-
-        User_Money_Data[player[playerRank[i]].name] = player[playerRank[i]].chips; // Update and save user money
-        User_Game_Played[player[playerRank[i]].name]++; // Update and save User Game Played (in order to calculate User Win Rate)
-
         pot -= std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
         i--;
     }
 
     // Display the chips
     for (int i = 0; i < playerCount; i++) {
-        std::cout << "Player " << i << " has " << player[i].chips << " chips" << std::endl;  
-
+        std::cout << "Player " << i << " has " << player[i].chips << " chips" << std::endl;
     }
 
     // Remove lost players
@@ -364,7 +328,7 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
 }
 
 void lastPlayerStanding(std::vector<Player>& player, std::deque<int>& playerOrder, int lastPlayer, int& pot) {
-    std::cout << "\n\n";  // CLI::clearScreen();
+    CLI::clearScreen();
     std::cout << "Player " << lastPlayer << " wins the round" << std::endl;
     player[lastPlayer].chips += pot;
     CLI::getEnter();
@@ -379,7 +343,7 @@ void lastPlayerStanding(std::vector<Player>& player, std::deque<int>& playerOrde
     }
 }
 
-void drawMultiplePokerGameRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind) {
+void fiveCardStudPokerGameRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind) {
     int playerCount = playerOrder.size();
 
     // Initialize deck
@@ -396,10 +360,10 @@ void drawMultiplePokerGameRound(std::vector<Player>& player, std::deque<int>& pl
     }
 
     // Pre-flop ----------------------------------------------------------------
-    std::cout << "\n\n";  // CLI::clearScreen();
+    CLI::clearScreen();
     std::cout << "Pre-flop" << std::endl;
     CLI::sleep(1000);
-    int lastPlayer = drawPokerBetRound(player, playerOrder, blind, 1, pot, 1);
+    int lastPlayer = studPokerBetRound(player, playerOrder, blind, 1, pot, 1);
 
     // Player wins because everyone else folded
     if (lastPlayer != -1) {
@@ -415,10 +379,10 @@ void drawMultiplePokerGameRound(std::vector<Player>& player, std::deque<int>& pl
     }
 
     // Flop --------------------------------------------------------------------
-    std::cout << "\n\n";  // CLI::clearScreen();
+    CLI::clearScreen();
     std::cout << "Flop" << std::endl;
     CLI::sleep(1000);
-    lastPlayer = drawPokerBetRound(player, playerOrder, blind, 0, pot, 1);
+    lastPlayer = studPokerBetRound(player, playerOrder, blind, 0, pot, 1);
 
     // Player wins because everyone else folded
     if (lastPlayer != -1) {
@@ -434,10 +398,10 @@ void drawMultiplePokerGameRound(std::vector<Player>& player, std::deque<int>& pl
     }
 
     // Turn --------------------------------------------------------------------
-    std::cout << "\n\n";  // CLI::clearScreen();
+    CLI::clearScreen();
     std::cout << "Turn" << std::endl;
     CLI::sleep(1000);
-    lastPlayer = drawPokerBetRound(player, playerOrder, blind, 0, pot, 1);
+    lastPlayer = studPokerBetRound(player, playerOrder, blind, 0, pot, 1);
 
     // Player wins because everyone else folded
     if (lastPlayer != -1) {
@@ -453,10 +417,10 @@ void drawMultiplePokerGameRound(std::vector<Player>& player, std::deque<int>& pl
     }
 
     // River -------------------------------------------------------------------
-    std::cout << "\n\n";  // CLI::clearScreen();
+    CLI::clearScreen();
     std::cout << "River" << std::endl;
     CLI::sleep(1000);
-    lastPlayer = drawPokerBetRound(player, playerOrder, blind, 0, pot, 1);
+    lastPlayer = studPokerBetRound(player, playerOrder, blind, 0, pot, 1);
 
     // Player wins because everyone else folded
     if (lastPlayer != -1) {
@@ -472,14 +436,13 @@ void drawMultiplePokerGameRound(std::vector<Player>& player, std::deque<int>& pl
     CLI::clearScreen();
 }
 
-void drawSinglePokerGameRound(std::vector<Player> &player, std::deque<int> &playerOrder, int blind) {
+void standardPokerGameRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind) {
     int playerCount = playerOrder.size();
 
     // Initialize deck
     Deck deck;
 
     int pot = 0;
-    // int dealerIndex = 0;
 
     // Deal cards
     std::cout << "Dealing card..." << std::endl;
@@ -488,7 +451,7 @@ void drawSinglePokerGameRound(std::vector<Player> &player, std::deque<int> &play
         for (int j = 0; j < 5; j++) {
             player[playerOrder.front()].hand.add(deck.draw());
         }
-        
+
         dequeNext(playerOrder);
     }
 
@@ -496,7 +459,7 @@ void drawSinglePokerGameRound(std::vector<Player> &player, std::deque<int> &play
     CLI::clearScreen();
     std::cout << "Betting" << std::endl;
     CLI::sleep(1000);
-    int lastPlayer = drawPokerBetRound(player, playerOrder, blind, 1, pot, 0);
+    int lastPlayer = studPokerBetRound(player, playerOrder, blind, 1, pot, 0);
 
     // Player wins because everyone else folded
     if (lastPlayer != -1) {

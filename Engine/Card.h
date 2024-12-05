@@ -61,6 +61,7 @@ public:
         for (int i = 0; i < 52; i++) {
             deck[i] = i;
         }
+        
         // Shuffle the deck
         std::shuffle(deck, deck + 52, Random::globalRNG);
     }

@@ -8,15 +8,23 @@
 #include <thread>
 
 namespace CLI {
-    inline void clearScreen() { system("cls"); }
+    /// @brief This function will clear all the screen
+    void clearScreen() {
+        system("cls");
+    }
 
-    inline void sleep(int milliseconds) {
+    /// @brief This function will let the program sleep in miliseconds
+    /// @param milliseconds 
+    void sleep(int milliseconds) {
         // https://stackoverflow.com/a/10613664
         std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
     }
 
-    // Ask user fo a number in range [n,m]
-    inline int getOptionNum(int n, int m) {
+    /// @brief This function will ask user choose a number in range [n,m]
+    /// @param n The left side
+    /// @param m The right side
+    /// @return An integer shows the player's option
+    int getOptionNum(int n, int m) {
         int userChoice = -1;
         while (userChoice < n || userChoice > m) {
             if (n != m)
@@ -30,7 +38,9 @@ namespace CLI {
         return userChoice;
     }
 
-    inline bool getOptionYN() {
+    /// @brief This function will ask user choose Yes or No 
+    /// @return Boolean shows the player's option
+    bool getOptionYN() {
         std::string userChoiceStr;
         while (1) {
             std::cout << "(y/n): ";
@@ -42,32 +52,37 @@ namespace CLI {
         return 0;
     }
 
-    inline void getEnter() {
+    /// @brief This function will get the player's Enter
+    void getEnter() {
         std::cout << "Press Enter to continue...";
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
     }
 
-    inline void title() {
+    /// @brief This function will print the game title
+    void title() {
         std::cout << "\n";
         std::cout << "  ____ _               _                    _             \n";
         std::cout << " / ___| | __ _ ___ ___(_) ___   _ __   ___ | | _____ _ __ \n";
         std::cout << "| |   | |/ _` / __/ __| |/ __| | '_ \\ / _ \\| |/ / _ \\ "
-            "'__|\n";
+                    "'__|\n";
         std::cout << "| |___| | (_| \\__ \\__ \\ | (__  | |_) | (_) |   <  __/ "
-            "|   \n";
+                    "|   \n";
         std::cout << " \\____|_|\\__,_|___/___/_|\\___| | .__/ "
-            "\\___/|_|\\_\\___|_|   \n";
+                    "\\___/|_|\\_\\___|_|   \n";
         std::cout << "                               |_|                        \n";
         std::cout << "\n";
     }
 
-    inline void printTutorial() {
+    /// @brief This function will print the game tutorial
+    void printTutorial() {
         std::cout << "Here goes tutorial\n\n";
         std::cout << "Press Enter to go back...";
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
     }
 
-    inline int getMainOption() {
+    /// @brief This function will ask the player choose a main option
+    /// @return An integer shows the player's choice
+    int getMainOption() {
         std::cout << "Main menu:\n\n";
         std::cout << "1. New game\n";
         std::cout << "2. Tutorial\n";
@@ -77,18 +92,22 @@ namespace CLI {
         return getOptionNum(0, 2);
     }
 
-    inline int getGameMode() {
+    /// @brief This function will ask the player choose a game mode
+    /// @return An integer shows the player's choice
+    int getGameMode() {
         std::cout << "Choose a Gamemode:\n\n";
         std::cout << "1. Standard Poker\n";
         std::cout << "2. Five Card Draw Poker\n";
         std::cout << "3. Five Card Stud Poker\n";
-        std::cout << "4. Blackjack\n\n";
+        std::cout << "4. Chinese Poker\n\n";
         std::cout << "Choose an option by pressing a number: ";
 
         return getOptionNum(1, 4);
     }
 
-    inline int getPlayerCount() {
+    /// @brief This function will ask the player choose a number of people to play with
+    /// @return An integer shows the player's choice
+    int getPlayerCount() {
         std::cout << "How many players do you want to play with?" << std::endl;
         return getOptionNum(2, 8);
     }

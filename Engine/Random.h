@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <ctime>
 #include <random>
+
 namespace Random {
     std::mt19937 globalRNG(static_cast<unsigned int>(std::time(0)));
     std::uniform_real_distribution<double> doubleRNGDistribution(0.0, 1.0);

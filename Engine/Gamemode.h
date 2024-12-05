@@ -3,22 +3,21 @@
 #ifndef GAMEMODE_H
 #define GAMEMODE_H
 
-#include "PokerGameplay.h"
-#include "FiveCardDraw.h"
-#include "BlackjackEngine.h"
+#include "ChinesePokerGameplay.h"
 #include "CLI.h"
+#include "FiveCardDraw.h"
+#include "Player.h"
+#include "PokerGameplay.h"
 #include "Read_UserData.h"
 
 void StandardPoker() {
     CLI::clearScreen();
 
     // Initialize players
-    std::cout << "How many players do you want to play with?"
-                << std::endl;
-    int playerCount = CLI::getOptionNum(2, 8);
+    int playerCount = CLI::getPlayerCount();
 
-    std::vector<Player> player(playerCount, Player());
-    for (Player& p : player) {
+    std::vector<Player> players(playerCount, Player());
+    for (Player& p : players) {
         p.hand = Hand();
         p.name = Random::_name();
         p.chips = 1000;
@@ -31,18 +30,17 @@ void StandardPoker() {
     // Initialize player's order
     std::deque<int> playerOrder;
     for (int i = 0; i < playerCount; i++) {
-        playerOrder.push_back(i);
+        playerOrder.push_back(i + 1);
     }
 
-    drawSinglePokerGameRound(player, playerOrder, 5);
+    standardPokerGameRound(players, playerOrder, 5);
 }
 
 void FiveCardDrawGame() {
     CLI::clearScreen();
 
     // Initialize players
-    std::cout << "How many players do you want to play with?" << std::endl;
-    int playerCount = CLI::getOptionNum(2, 8);
+    int playerCount = CLI::getPlayerCount();
 
     std::vector<Player> player(playerCount, Player());
     for (Player& p : player) {
@@ -54,7 +52,7 @@ void FiveCardDrawGame() {
         p.lost = 0;
         p.allIn = 0;
     }
-    
+
     // Initialize player's order
     std::deque<int> playerOrder;
     for (int i = 0; i < playerCount; i++) {
@@ -75,8 +73,7 @@ void FiveCardStudGame() {
     CLI::clearScreen();
 
     // Initialize players
-    std::cout << "How many players do you want to play with?" << std::endl;
-    int playerCount = CLI::getOptionNum(2, 8);
+    int playerCount = CLI::getPlayerCount();
 
     std::vector<Player> player(playerCount, Player());
     for (Player& p : player) {
@@ -100,34 +97,64 @@ void FiveCardStudGame() {
         playerOrder.push_back(i);
     }
 
-    drawMultiplePokerGameRound(player, playerOrder, 5);
+    int round = 1;
+    while (playerOrder.size() > 1) {
+        std::cout << "Round " << round << std::endl;
+        fiveCardStudPokerGameRound(player, playerOrder, 5);
+    }
 }
 
-void BlackjackGame() {
+void ChinesePokerGame() {
+    CLI::clearScreen();
 
+    // Initialize players
+    int playerCount = CLI::getPlayerCount();
+
+    std::vector<Player> player(playerCount, Player());
+    for (Player& p : player) {
+        p.hand = Hand();
+        p.name = Random::_name();
+        p.chips = 1000;
+        p.bet = 0;
+        p.folded = 0;
+        p.lost = 0;
+        p.allIn = 0;
+    }
+
+    // Initialize player's order
+    std::deque<int> playerOrder;
+    for (int i = 0; i < playerCount; i++) {
+        playerOrder.push_back(i);
+    }
+
+    int round = 1;
+    while (playerOrder.size() > 1) {
+        std::cout << "Round " << round << std::endl;
+        ChinesePokerGameRound(player, playerOrder);
+    }
 }
 
-void ExitGame(bool &exited) {
+void ExitGame(bool& exited) {
     std::cout << "Thank you for playing our games!";
     exited = true;
 }
 
-void GameMode(bool &exited) {
-    int userChoice = CLI::getGameMode();    
+void GameMode(bool& exited) {
+    int userChoice = CLI::getGameMode();
     switch (userChoice) {
         case 1:
             StandardPoker();
             break;
-        case 2: 
+        case 2:
             FiveCardDrawGame();
             break;
-        case 3: 
+        case 3:
             FiveCardStudGame();
             break;
         case 4:
-            BlackjackGame();
+            ChinesePokerGame();
             break;
-        case 0: 
+        case 0:
             ExitGame(exited);
             break;
         default:
