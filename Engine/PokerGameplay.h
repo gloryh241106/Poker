@@ -16,6 +16,12 @@
 
 enum class PlayerAction { NONE, CHECK, CALL, BET, RAISE, FOLD, ALL_IN };
 
+/// @brief Ask player action
+/// @param player Struct Player 
+/// @param currBet The current bet
+/// @param minRaiseDiff The min raise difference
+/// @param preflop Boolean is preflop round
+/// @return enum PlayerAction
 PlayerAction askPlayerAction(Player& player, const int& currBet, const int& minRaiseDiff, bool& preflop) {
     if (currBet == 0) {
         std::cout << "1. Check" << std::endl;
@@ -68,13 +74,13 @@ PlayerAction askPlayerAction(Player& player, const int& currBet, const int& minR
             return PlayerAction::FOLD;
         }
     }
+
     return PlayerAction::NONE;
 }
 
-// https://en.wikipedia.org/wiki/Betting_in_poker
-// Returns the index of the player who won the round
-// Otherwise returns -1
-int studPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, int blind, bool preflop, int& pot, bool isFiveCardStud) {
+/// @brief https://en.wikipedia.org/wiki/Betting_in_poker
+/// @return Returns the index of the player who won the round, otherwise returns -1
+int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind, bool preflop, int& pot, bool isFiveCardStud) {
     int playerCount = player.size();
     int playerInGame = playerOrder.size();
 
@@ -127,7 +133,7 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, 
             if (isFiveCardStud) {
                 CLI::clearScreen();
                 for (int i : playerOrder) {
-                    std::cout << "Player's " << i
+                    std::cout << "Player's " << i + 1
                               << " hand: " << player[i].hand.toString(1)
                               << std::endl;
                 }
@@ -139,7 +145,7 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, 
             std::cout << "Player " << playerOrder.front()
                       << "'s turn " << std::endl;
             std::cout << "Your hand: "
-                      << player[playerOrder.front()].hand.toString(1) << std::endl;
+                      << player[playerOrder.front()].hand.toString() << std::endl;
             std::cout << "Your remaining chips: " 
                       << player[playerOrder.front()].chips << std::endl;
             std::cout << "You bet: " 
@@ -251,8 +257,11 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, 
     return -1;
 }
 
-void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
-              int& pot) {
+/// @brief This function will showdown all the result, including player's hand, chips, remaining
+/// @param player Vector contains N players
+/// @param playerOrder Deque contains player order
+/// @param pot Pot of the game
+void showdown(std::vector<Player>& player, std::deque<int>& playerOrder, int& pot) {
     // int pot = 0;
     int playerCount = playerOrder.size();
     for (int i : playerOrder) {
@@ -283,7 +292,7 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
     }
 
     for (int i : playerRank) {
-        std::cout << i << ' ';
+        std::cout << i + 1 << ' ';
     }
 
     std::cout << std::endl;
@@ -298,8 +307,8 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
     }
 
     // Display the chips
-    for (int i = 0; i < playerCount; i++) {
-        std::cout << "Player " << i << " has " << player[i].chips << " chips" << std::endl;
+    for (int j = 0; j < playerCount; j++) {
+        std::cout << "Player " << j + 1 << " has " << player[j].chips << " chips" << std::endl;
     }
 
     // Remove lost players
@@ -316,17 +325,22 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
     }
 
     // Reset the players
-    for (int i : playerOrder) {
-        player[i].hand.clear();
-        player[i].bet = 0;
-        player[i].folded = 0;
-        player[i].allIn = 0;
-        player[i].showdownBet = 0;
+    for (int k : playerOrder) {
+        player[k].hand.clear();
+        player[k].bet = 0;
+        player[k].folded = 0;
+        player[k].allIn = 0;
+        player[k].showdownBet = 0;
     }
 
     CLI::getEnter();
 }
 
+/// @brief This function will tell the last player playing the game, and all pot is belongs to that player
+/// @param player Vector contains N players
+/// @param playerOrder Deque contains player order
+/// @param lastPlayer Index of the player
+/// @param pot Total money bet from the game
 void lastPlayerStanding(std::vector<Player>& player, std::deque<int>& playerOrder, int lastPlayer, int& pot) {
     CLI::clearScreen();
     std::cout << "Player " << lastPlayer << " wins the round" << std::endl;
@@ -343,6 +357,7 @@ void lastPlayerStanding(std::vector<Player>& player, std::deque<int>& playerOrde
     }
 }
 
+/// @brief This function will draw the Five Card Stud game
 void fiveCardStudPokerGameRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind) {
     int playerCount = playerOrder.size();
 
@@ -430,12 +445,15 @@ void fiveCardStudPokerGameRound(std::vector<Player>& player, std::deque<int>& pl
     //--------------------------------------------------------------------------
 
     // Showdown
+    std::cout << "Calculating card...";
+    CLI::sleep(4000);
     showdown(player, playerOrder, pot);
 
     // After playing game, clear the screen for returning the main menu
     CLI::clearScreen();
 }
 
+/// @brief This function will draw the Standard Poker Game
 void standardPokerGameRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind) {
     int playerCount = playerOrder.size();
 

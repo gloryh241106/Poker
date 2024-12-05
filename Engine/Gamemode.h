@@ -16,8 +16,8 @@ void StandardPoker() {
     // Initialize players
     int playerCount = CLI::getPlayerCount();
 
-    std::vector<Player> players(playerCount, Player());
-    for (Player& p : players) {
+    std::vector<Player> player(playerCount, Player());
+    for (Player& p : player) {
         p.hand = Hand();
         p.name = Random::_name();
         p.chips = 1000;
@@ -30,10 +30,10 @@ void StandardPoker() {
     // Initialize player's order
     std::deque<int> playerOrder;
     for (int i = 0; i < playerCount; i++) {
-        playerOrder.push_back(i + 1);
+        playerOrder.push_back(i);
     }
 
-    standardPokerGameRound(players, playerOrder, 5);
+    standardPokerGameRound(player, playerOrder, 5);
 }
 
 void FiveCardDrawGame() {
