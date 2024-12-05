@@ -3,9 +3,8 @@
 #ifndef GAMEMODE_H
 #define GAMEMODE_H
 
-#include "PokerEngine.h"
+#include "PokerGameplay.h"
 #include "FiveCardDraw.h"
-#include "PokerEngine.h"
 #include "BlackjackEngine.h"
 #include "CLI.h"
 #include "Read_UserData.h"

@@ -13,7 +13,7 @@
 #include "Card.h"
 #include "Random.h"
 #include "Hand.h"
-#include "PokerEngine.h"
+#include "PokerGameplay.h"
 
 void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, const std::vector<int>& cardsToRemove) {
     // removing cards from player hand
