@@ -4,21 +4,21 @@
 // Hand
 #include <algorithm>
 #include <random>
-
 #include "Card.h"
 
 class Hand {
-   private:
+private:
     uint8_t cardMask = 0x00;
     uint64_t handBit = 0x0000000000000000;
     //                      AKQJT98765432
 
-   public:
+public:
     int cards[5] = {-1, -1, -1, -1, -1};
     int size = 0;
 
     bool add(int card) {
         if (size >= 5) return false;
+
         cards[size] = card;
         int t = size;
         size++;
@@ -36,6 +36,7 @@ class Hand {
             int count = __builtin_popcountll(handBit & (0xfull << (i << 2)));
             compressed |= count << (i << 1);
         }
+
         return compressed;
     }
 
@@ -45,6 +46,20 @@ class Hand {
         for (int i = 0; i < 5; i++) {
             cards[i] = -1;
         }
+    }
+    
+    void erase(int card) {
+        int index = -1;
+        int size1 = 5;
+        for (int i = 0; i < size1; i++)
+            if (cards[i] == card)
+                index = i;
+
+        if (index == -1)
+            std::cout << "Can not find your card" << std::endl;
+        for (int i = index; i < size1 - 1; i++)
+            cards[i] = cards[i + 1];
+        size1--;
     }
 
     void setMask(uint8_t mask) { cardMask = mask; }
