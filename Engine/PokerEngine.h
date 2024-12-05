@@ -1,221 +1,512 @@
 #pragma once
 
-#ifndef __POKER_ENGINE__
-#define __POKER_ENGINE__
-
-#include <algorithm>
-#include <ctime>
+#include <chrono>
+#include <deque>
 #include <iostream>
-#include <random>
-
+#include <thread>
+#include <vector>
+#include "Read_UserData.h"
+#include "CLI.h"
 #include "Card.h"
+#include "Random.h"
 #include "Hand.h"
+#include "EvaluateHand.h"
 
-// d ss.    sSSSs   d     S d sss   d ss.
-// S    b  S     S  S    P  S       S    b
-// S    P S       S Ssss'   S       S    P
-// S sS'  S       S S   s   S sSSs  S sS'
-// S      S       S S    b  S       S   S
-// S       S     S  S     b S       S    S
-// P        "sss"   P     P P sSSss P    P
+enum PlayerAction { NONE, CHECK, CALL, BET, RAISE, FOLD, ALL_IN };
 
-// Here are functions that check the type of a poker hand.
-// These functions should only be called with hands' size 5
-
-namespace PokerEngine {
-
-// Enum for hand types
-
-enum HandType : uint64_t {
-    HIGH_CARD = 1ull << 52,
-    ONE_PAIR = 1ull << 53,
-    TWO_PAIR = 1ull << 54,
-    THREE_OF_A_KIND = 1ull << 55,
-    LOW_ACE_STRAIGHT = 1ull << 56,
-    STRAIGHT = 1ull << 57,
-    FLUSH = 1ull << 58,
-    FULL_HOUSE = 1ull << 59,
-    FOUR_OF_A_KIND = 1ull << 60,
-    LOW_ACE_STRAIGHT_FLUSH = 1ull << 61,
-    STRAIGHT_FLUSH = 1ull << 62,
-    NULL_TYPE = 0
+struct Player {
+    Hand hand;
+    std::string name;
+    int chips;
+    int bet;
+    bool folded;
+    bool lost;
+    bool allIn;
+    PlayerAction action = NONE;
+    int showdownBet = 0;
 };
 
-const uint64_t TYPE_MASK = 0xfff0000000000000;
-const uint64_t HAND_MASK = 0x000fffffffffffff;
+void dequeNext(std::deque<int>& q) {
+    int front = q.front();
+    q.pop_front();
+    q.push_back(front);
+}
 
-const uint64_t QUAD_MASK = 0xf;
-const uint64_t STRAIGHT_MASK = 0xfffff;
-const uint64_t ACE_STRAIGHT_MASK = 0x000f00000000ffff;
-const uint64_t FLUSH_MASK = 0x0001111111111111;
+void dequePrev(std::deque<int>& q) {
+    int back = q.back();
+    q.pop_back();
+    q.push_front(back);
+}
 
-// Calculate the type and point of a poker hand
-void eval(uint64_t& handBit) {
-    // Clear the type
-    handBit &= HAND_MASK;
+PlayerAction askPlayerAction(Player& player, const int& currBet, const int& minRaiseDiff, bool& preflop) {
+    if (currBet == 0) {
+        std::cout << "1. Check" << std::endl;
+        std::cout << "2. Raise" << std::endl;
+        std::cout << "3. Fold" << std::endl;
+        int op = CLI::getOptionNum(1, 3);
 
-    // Flush check
-    bool isFlush = false;
-    for (int i = 0; i < 4; i++) {
-        if (__builtin_popcountll(handBit & (FLUSH_MASK << i)) == 5) {
-            isFlush = true;
-            break;
+        if (op == 1) {
+            return PlayerAction::CHECK;
+        } else if (op == 2) {
+            preflop = false;
+            return PlayerAction::RAISE;
+        } else {
+            return PlayerAction::FOLD;
         }
-    }
+    } else if (currBet >= player.chips) {
+        std::cout << "1. All In" << std::endl;
+        std::cout << "2. Fold" << std::endl;
+        int op = CLI::getOptionNum(1, 2);
 
-    // Straight check
-    bool isStraight = false;
-    bool lowAce = false;
-    if (__builtin_popcountll(handBit & ACE_STRAIGHT_MASK) == 5) {
-        isStraight = true;
-        lowAce = true;
-        for (int j = 0; j < 4; j++) {
-            if (__builtin_popcountll(handBit & (QUAD_MASK << (j << 2))) != 1) {
-                isStraight = false;
-                lowAce = false;
-                break;
-            }
+        if (op == 1) {
+            return PlayerAction::ALL_IN;
+        } else {
+            return PlayerAction::FOLD;
         }
-        if (__builtin_popcountll(handBit & (QUAD_MASK << (13 << 2))) != 1) {
-            isStraight = false;
-            lowAce = false;
+    } else if (currBet + minRaiseDiff >= player.chips) {
+        std::cout << "1. Call" << std::endl;
+        std::cout << "2. All In" << std::endl;
+        std::cout << "3. Fold" << std::endl;
+        int op = CLI::getOptionNum(1, 3);
+
+        if (op == 1) {
+            return PlayerAction::CALL;
+        } else if (op == 2) {
+            return PlayerAction::ALL_IN;
+        } else {
+            return PlayerAction::FOLD;
         }
     } else {
-        for (int i = 0; i < 9; i++) {
-            if (__builtin_popcountll(handBit & (STRAIGHT_MASK << (i << 2))) ==
-                5) {
-                isStraight = true;
-                for (int j = 0; j < 5; j++) {
-                    if (__builtin_popcountll(
-                            handBit & (QUAD_MASK << (i << 2) << (j << 2))) !=
-                        1) {
-                        isStraight = false;
-                        break;
+        std::cout << "1. Call" << std::endl;
+        std::cout << "2. Raise" << std::endl;
+        std::cout << "3. Fold" << std::endl;
+        int op = CLI::getOptionNum(1, 3);
+
+        if (op == 1) {
+            return PlayerAction::CALL;
+        } else if (op == 2) {
+            return PlayerAction::RAISE;
+        } else {
+            return PlayerAction::FOLD;
+        }
+    }
+    return PlayerAction::NONE;
+}
+
+// https://en.wikipedia.org/wiki/Betting_in_poker
+// Returns the index of the player who won the round
+// Otherwise returns -1
+int drawPokerBetRound(std::vector<Player>& player, std::deque<int> playerOrder, int blind, bool preflop, int& pot, bool isFiveCardStud) {
+    int playerCount = player.size();
+    int playerInGame = playerOrder.size();
+
+    if (playerInGame < 1) {
+        return -1;
+    }
+
+    // Check if there is only one player left
+    if (playerInGame == 1) {
+        return playerOrder.front();
+    }
+
+    // Forced bets
+    bool forcedBet = 0;
+    if (preflop) {
+        forcedBet = 1;
+        if (playerInGame == 2) {
+            player[playerOrder.front()].bet += blind;  // Small blind
+            dequeNext(playerOrder);
+            player[playerOrder.front()].bet += blind * 2;  // Big blind
+        } else {
+            dequeNext(playerOrder);
+            player[playerOrder.front()].bet += blind;  // Small blind
+            dequeNext(playerOrder);
+            player[playerOrder.front()].bet += blind * 2;  // Big blind
+        }
+    }
+
+    int currBet = preflop ? blind * 2 : 0;
+
+    int minRaiseDiff = preflop ? blind * 2 : 0;
+
+    // If preflop, the player after the big blind is the first to act
+    // Else, the dealer is the first to act
+    int raisedPlayer = playerOrder.front();
+
+    bool live = 1;  // The betting round is live
+    while (live) {
+        live = false;
+        do {
+            dequeNext(playerOrder);
+
+            // Skip players who have folded
+            if (player[playerOrder.front()].folded) {
+                // dequeNext(playerOrder);
+                continue;
+            }
+
+            // If the GameMode is Five Card Stud, print all players' hand
+            if (isFiveCardStud) {
+                CLI::clearScreen();
+                for (int i : playerOrder) {
+                    std::cout << "Player's " << i
+                              << " hand: " << player[i].hand.toString(1)
+                              << std::endl;
+                }
+
+            }
+
+            CLI::sleep(1000);
+            // Print the player hand for betting
+            std::cout << "\n\n";
+            std::cout << "Player " << playerOrder.front() << "'s turn "
+                      << std::endl;
+            //   << betPlayerCount
+            std::cout << "Your hand: "
+                      << player[playerOrder.front()].hand.toString(1)
+                      << std::endl;
+            std::cout << "Your remaining chips: "
+                      << player[playerOrder.front()].chips << std::endl;
+            std::cout << "You bet: " << player[playerOrder.front()].bet
+                      << std::endl;
+            std::cout << "Pot: " << pot << std::endl;
+
+            if (player[playerOrder.front()].allIn) {
+                std::cout << "You have gone all in" << std::endl;
+                CLI::getEnter();
+                if (playerOrder.front() == raisedPlayer) {
+                    break;
+                } else {
+                    // dequeNext(playerOrder);
+                    continue;
+                }
+            }
+
+            std::cout << "Current bet amount: " << currBet << std::endl;
+            std::cout << "What do you want to do?" << std::endl;
+
+            PlayerAction op = askPlayerAction(player[playerOrder.front()],
+                                              currBet, minRaiseDiff, preflop);
+
+            std::cout << std::endl;
+
+            if (op == PlayerAction::CHECK || op == PlayerAction::CALL) {  // CHECK/CALL
+                player[playerOrder.front()].bet = currBet;
+
+                if (player[playerOrder.front()].chips <= currBet) {  // ALL IN
+                    player[playerOrder.front()].allIn = 1;
+                    player[playerOrder.front()].bet =
+                        player[playerOrder.front()].chips;
+                }
+
+                // if (playerOrder.front() == raisedPlayer) {
+                //     break;
+                // } else {
+                //     dequeNext(playerOrder);
+                //     continue;
+                // }
+            } else if (op == PlayerAction::BET) {
+                std::cout << "How much do you want to bet?" << std::endl;
+                int bet = CLI::getOptionNum(blind * 2, player[playerOrder.front()].chips);
+                minRaiseDiff = bet - currBet;
+                currBet = bet;
+                player[playerOrder.front()].bet = currBet;
+
+                if (currBet == player[playerOrder.front()].chips) {  // ALL IN
+                    player[playerOrder.front()].allIn = 1;
+                }
+
+                live = true;
+                raisedPlayer = playerOrder.front();
+            } else if (op == PlayerAction::RAISE) {
+                std::cout << "Min raise: " << currBet + minRaiseDiff << std::endl;
+                std::cout << "How much do you want to raise to?" << std::endl;
+                int raise = CLI::getOptionNum(currBet + minRaiseDiff, player[playerOrder.front()].chips);
+                minRaiseDiff = raise - currBet;
+                currBet = raise;
+                player[playerOrder.front()].bet = currBet;
+
+                if (currBet >= player[playerOrder.front()].chips) {  // ALL IN
+                    player[playerOrder.front()].allIn = 1;
+                }
+
+                live = true;
+                raisedPlayer = playerOrder.front();
+            } else if (op == PlayerAction::ALL_IN) {  // ALL IN
+                player[playerOrder.front()].allIn = 1;
+                player[playerOrder.front()].bet = player[playerOrder.front()].chips;
+                int diff = player[playerOrder.front()].chips - currBet;
+                currBet = std::max(currBet, player[playerOrder.front()].bet);
+
+                // If the player goes all-in, others are only allowed to
+                // re-raise if he exceeds the minimum raise.
+                if (diff > minRaiseDiff) {
+                    minRaiseDiff = diff;
+                    live = true;
+                    raisedPlayer = playerOrder.front();
+                }
+            } else if (op == PlayerAction::FOLD) {  // FOLD
+                player[playerOrder.front()].folded = 1;
+                playerInGame--;
+            }
+
+            // Check if there is only one player left
+            if (playerInGame == 1) {
+                for (int i = 0; i < playerCount; i++) {
+                    if (!player[i].folded) {
+                        return i;
                     }
                 }
-                break;
             }
-        }
+
+            // Clear screen for next player
+            CLI::clearScreen();
+
+            // dequeNext(playerOrder);
+        } while (playerOrder.front() != raisedPlayer);
     }
 
-    // Checking if hand is Straight Flush
-    bool isStraightFlush = isStraight && isFlush;
-    if (isStraightFlush) {
-        if (lowAce)
-            handBit |= HandType::LOW_ACE_STRAIGHT_FLUSH;
-        else
-            handBit |= HandType::STRAIGHT_FLUSH;
-        return;
+    // Collect the pot
+    for (int i : playerOrder) {
+        pot += player[i].bet;
+        player[i].showdownBet += player[i].bet;
+        player[i].chips -= player[i].bet;
+        player[i].bet = 0;
     }
 
-    // Checking if hand is Four Of A Kind
-    bool isFourOfAKind = false;
-    for (int i = 0; i < 52; i += 4) {
-        if (__builtin_popcountll(handBit & (QUAD_MASK << i)) == 4) {
-            isFourOfAKind = true;
-            break;
-        }
-    }
-
-    if (isFourOfAKind) {
-        handBit |= HandType::FOUR_OF_A_KIND;
-        return;
-    }
-
-    // Checking if hand is Full House
-    int pairCount = 0;
-    int tripleCount = 0;
-    for (int i = 0; i < 13; i++) {
-        if (__builtin_popcountll(handBit & (QUAD_MASK << (i << 2))) == 2) {
-            pairCount++;
-        } else if (__builtin_popcountll(handBit & (QUAD_MASK << (i << 2))) ==
-                   3) {
-            tripleCount++;
-        }
-    }
-
-    if (tripleCount == 1 && pairCount == 1) {
-        handBit |= HandType::FULL_HOUSE;
-        return;
-    }
-
-    // Checking if hand is Straight
-    if (isStraight) {
-        if (lowAce)
-            handBit |= HandType::LOW_ACE_STRAIGHT;
-        else
-            handBit |= HandType::STRAIGHT;
-        return;
-    }
-
-    // Checking if hand is Flush
-    if (isFlush) {
-        handBit |= HandType::FLUSH;
-        return;
-    }
-
-    // Checking if hand is Three Of A Kind
-    if (tripleCount == 1) {
-        handBit |= HandType::THREE_OF_A_KIND;
-        return;
-    }
-
-    // Checking if hand is Two Pairs
-    if (pairCount == 2) {
-        handBit |= HandType::TWO_PAIR;
-        return;
-    }
-
-    // Checking if hand is One Pair
-    if (pairCount == 1) {
-        handBit |= HandType::ONE_PAIR;
-        return;
-    }
-
-    // If all above case is not running, that means hand is High Card
-    handBit |= HandType::HIGH_CARD;
+    return -1;
 }
 
-std::string type(const Hand& hand) {
-    uint64_t type = hand.bit() & TYPE_MASK;
-    switch (type) {
-        case HandType::HIGH_CARD:
-            return "High card";
-        case HandType::ONE_PAIR:
-            return "One pair";
-        case HandType::TWO_PAIR:
-            return "Two pair";
-        case HandType::THREE_OF_A_KIND:
-            return "Three of a kind";
-        case HandType::LOW_ACE_STRAIGHT:
-            return "Low ace straight";
-        case HandType::STRAIGHT:
-            return "Straight";
-        case HandType::FLUSH:
-            return "Flush";
-        case HandType::FULL_HOUSE:
-            return "Full house";
-        case HandType::FOUR_OF_A_KIND:
-            return "Four of a kind";
-        case HandType::LOW_ACE_STRAIGHT_FLUSH:
-            return "Low ace straight flush";
-        case HandType::STRAIGHT_FLUSH:
-            return "Straight flush";
-        default:
-            break;
+void showdown(std::vector<Player>& player, std::deque<int>& playerOrder,
+              int& pot) {
+    // int pot = 0;
+    int playerCount = playerOrder.size();
+    for (int i : playerOrder) {
+        // std::cout << "Here " << p.bet << std::endl;
+        // CLI::getEnter();
+        // pot += p.bet;
+        // p.chips -= p.bet;
+        if (player[i].folded) continue;
+        PokerEngine::eval(player[i].hand.bit());
     }
-    return "Unknown";
+
+    std::vector<int> playerRank(playerOrder.begin(), playerOrder.end());
+
+    // Sort the players by hand strength
+    std::sort(playerRank.begin(), playerRank.end(), [&](int a, int b) {
+        return PokerEngine::compareHands(player[a].hand, player[b].hand);
+    });
+
+    // Display the hands
+    CLI::clearScreen();
+    std::cout << "Showdown" << std::endl;
+    for (int i = 0; i < playerCount; i++) {
+        if (player[playerRank[i]].folded) continue;
+        std::cout << "Player " << playerRank[i]
+                  << "'s hand: " << player[playerRank[i]].hand.toString()
+                  << " (" << PokerEngine::type(player[playerRank[i]].hand)
+                  << ")" << std::endl;
+    }
+
+    for (int i : playerRank) {
+        std::cout << i+1 << ' ';
+    }
+
+    std::cout << std::endl;
+
+    // Distribute the pot
+    int i = 0;
+    while (i < playerCount && pot > 0) {
+        player[playerRank[i]].showdownBet = std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
+        long long MoneyUserTemp = player[playerRank[i]].chips;
+        player[playerRank[i]].chips += player[playerRank[i]].showdownBet;
+        
+        //Check if player chips after pot distributed increase or not. If increase means player won the game, else they lost.
+        if (player[playerRank[i]].chips >= MoneyUserTemp)
+            User_Game_Won[player[playerRank[i]].name]++;
+
+        User_Money_Data[player[playerRank[i]].name] = player[playerRank[i]].chips; // Update and save user money
+        User_Game_Played[player[playerRank[i]].name]++; // Update and save User Game Played (in order to calculate User Win Rate)
+
+        pot -= std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
+        i--;
+    }
+
+    // Display the chips
+    for (int i = 0; i < playerCount; i++) {
+        std::cout << "Player " << i << " has " << player[i].chips << " chips" << std::endl;  
+
+    }
+
+    // Remove lost players
+    i = 0;
+    while (i < playerOrder.size()) {
+        if (player[playerOrder.front()].chips == 0) {
+            player[playerOrder.front()].lost = 1;
+            playerOrder.pop_front();
+            continue;
+        }
+
+        dequeNext(playerOrder);
+        i++;
+    }
+
+    // Reset the players
+    for (int i : playerOrder) {
+        player[i].hand.clear();
+        player[i].bet = 0;
+        player[i].folded = 0;
+        player[i].allIn = 0;
+        player[i].showdownBet = 0;
+    }
+
+    CLI::getEnter();
 }
 
-bool compareHands(const Hand& hand1, const Hand& hand2) {
-    uint64_t type1 = hand1.bit() & TYPE_MASK;
-    uint64_t type2 = hand2.bit() & TYPE_MASK;
+void lastPlayerStanding(std::vector<Player>& player, std::deque<int>& playerOrder, int lastPlayer, int& pot) {
+    std::cout << "\n\n";  // CLI::clearScreen();
+    std::cout << "Player " << lastPlayer << " wins the round" << std::endl;
+    player[lastPlayer].chips += pot;
+    CLI::getEnter();
 
-    if (type1 != type2) return type1 > type2;
-
-    return hand1.compressedBit() > hand2.compressedBit();
+    // Reset the players
+    for (int i : playerOrder) {
+        player[i].hand.clear();
+        player[i].bet = 0;
+        player[i].folded = 0;
+        player[i].allIn = 0;
+        player[i].showdownBet = 0;
+    }
 }
 
-}  // namespace PokerEngine
+void drawMultiplePokerGameRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind) {
+    int playerCount = playerOrder.size();
 
-#endif
+    // Initialize deck
+    Deck deck;
+
+    int pot = 0;
+    // int dealerIndex = 0;
+
+    // Deal cards
+    for (int i = 0; i < playerCount; i++) {
+        player[playerOrder.front()].hand.add(deck.draw());
+        player[playerOrder.front()].hand.add(deck.draw());
+        dequeNext(playerOrder);
+    }
+
+    // Pre-flop ----------------------------------------------------------------
+    std::cout << "\n\n";  // CLI::clearScreen();
+    std::cout << "Pre-flop" << std::endl;
+    CLI::sleep(1000);
+    int lastPlayer = drawPokerBetRound(player, playerOrder, blind, 1, pot, 1);
+
+    // Player wins because everyone else folded
+    if (lastPlayer != -1) {
+        lastPlayerStanding(player, playerOrder, lastPlayer, pot);
+        return;
+    }
+    //--------------------------------------------------------------------------
+
+    // Deal cards
+    for (int i = 0; i < playerCount; i++) {
+        player[playerOrder.front()].hand.add(deck.draw());
+        dequeNext(playerOrder);
+    }
+
+    // Flop --------------------------------------------------------------------
+    std::cout << "\n\n";  // CLI::clearScreen();
+    std::cout << "Flop" << std::endl;
+    CLI::sleep(1000);
+    lastPlayer = drawPokerBetRound(player, playerOrder, blind, 0, pot, 1);
+
+    // Player wins because everyone else folded
+    if (lastPlayer != -1) {
+        lastPlayerStanding(player, playerOrder, lastPlayer, pot);
+        return;
+    }
+    //--------------------------------------------------------------------------
+
+    // Deal cards
+    for (int i = 0; i < playerCount; i++) {
+        player[playerOrder.front()].hand.add(deck.draw());
+        dequeNext(playerOrder);
+    }
+
+    // Turn --------------------------------------------------------------------
+    std::cout << "\n\n";  // CLI::clearScreen();
+    std::cout << "Turn" << std::endl;
+    CLI::sleep(1000);
+    lastPlayer = drawPokerBetRound(player, playerOrder, blind, 0, pot, 1);
+
+    // Player wins because everyone else folded
+    if (lastPlayer != -1) {
+        lastPlayerStanding(player, playerOrder, lastPlayer, pot);
+        return;
+    }
+    //--------------------------------------------------------------------------
+
+    // Deal cards
+    for (int i = 0; i < playerCount; i++) {
+        player[playerOrder.front()].hand.add(deck.draw());
+        dequeNext(playerOrder);
+    }
+
+    // River -------------------------------------------------------------------
+    std::cout << "\n\n";  // CLI::clearScreen();
+    std::cout << "River" << std::endl;
+    CLI::sleep(1000);
+    lastPlayer = drawPokerBetRound(player, playerOrder, blind, 0, pot, 1);
+
+    // Player wins because everyone else folded
+    if (lastPlayer != -1) {
+        lastPlayerStanding(player, playerOrder, lastPlayer, pot);
+        return;
+    }
+    //--------------------------------------------------------------------------
+
+    // Showdown
+    showdown(player, playerOrder, pot);
+
+    // After playing game, clear the screen for returning the main menu
+    CLI::clearScreen();
+}
+
+void drawSinglePokerGameRound(std::vector<Player> &player, std::deque<int> &playerOrder, int blind) {
+    int playerCount = playerOrder.size();
+
+    // Initialize deck
+    Deck deck;
+
+    int pot = 0;
+    // int dealerIndex = 0;
+
+    // Deal cards
+    std::cout << "Dealing card..." << std::endl;
+    CLI::sleep(1000);
+    for (int i = 0; i < playerCount; i++) {
+        for (int j = 0; j < 5; j++) {
+            player[playerOrder.front()].hand.add(deck.draw());
+        }
+        
+        dequeNext(playerOrder);
+    }
+
+    // Bet
+    CLI::clearScreen();
+    std::cout << "Betting" << std::endl;
+    CLI::sleep(1000);
+    int lastPlayer = drawPokerBetRound(player, playerOrder, blind, 1, pot, 0);
+
+    // Player wins because everyone else folded
+    if (lastPlayer != -1) {
+        lastPlayerStanding(player, playerOrder, lastPlayer, pot);
+        return;
+    }
+
+    // Showdown
+    showdown(player, playerOrder, pot);
+
+    // After playing game, clear the screen for returning the main menu
+    CLI::clearScreen();
+}
