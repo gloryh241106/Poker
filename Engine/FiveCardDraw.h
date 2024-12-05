@@ -89,63 +89,61 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
     // Shuffle card
     deck.shuffle();
 
-    // Deal card for each players
+    // Deal card for each players   
     int playerCount = players.size();
     for (int i = 0; i < playerCount; i++) {
         for (int j = 0; j < 5; j++) {
             players[playerOrder.front()].hand.add(deck.draw());
         }
-
+        dequeNext(playerOrder);
+    }
     TryAgain:
         //  Check and allow draw card
-        for (int i = 0; i < playerCount; ++i) {
-            //Player& currentPlayer = players[i];
-            std::cout << "CurrentPlayer is player " << i << std::endl;
-            std::cout << "Do you want to draw? (Y/N) " << std::endl;
-            char action;
-            std::cin >> action;
+    for (int i = 0; i < playerCount; ++i) {
+        //Player& currentPlayer = players[i];
+        std::cout << "CurrentPlayer is player " << i << std::endl;
+        std::cout << "Do you want to draw? (Y/N) " << std::endl;
+        char action;
+        std::cin >> action;
 
-            if (toupper(action) == 'Y') {
-                int number = 0;
-                do {
-                    std::cout << "Choose number of cards to remove (1 to 5): " << std::endl;
-                    std::cin >> number;
+        if (toupper(action) == 'Y') {
+            int number = 0;
+            do {
+                std::cout << "Choose number of cards to remove (1 to 5): " << std::endl;
+                std::cin >> number;
 
-                    if (number < 1 || number > 5 || std::cin.fail()) {
-                        std::cout << "Invalid number. Please choose between 1 and 5." << std::endl;
+                if (number < 1 || number > 5 || std::cin.fail()) {
+                    std::cout << "Invalid number. Please choose between 1 and 5." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(1000, '\n');
+                    continue;
+                }
+
+                std::vector<int> cardsToRemove;
+                std::cout << "Enter the card values to remove: " << std::endl;
+                for (int j = 0; j < number; j++) {
+                InputCardValueToRemove:
+                    int cardValue;
+                    std::cin >> cardValue;
+
+                    if (!std::cin.fail())
+                        cardsToRemove.push_back(cardValue);
+                    else {
+                        std::cout << "Invalid output, enter again" << std::endl;
                         std::cin.clear();
                         std::cin.ignore(1000, '\n');
-                        continue;
+                        goto InputCardValueToRemove;
                     }
-
-                    std::vector<int> cardsToRemove;
-                    std::cout << "Enter the card values to remove: " << std::endl;
-                    for (int j = 0; j < number; j++) {
-                    InputCardValueToRemove:
-                        int cardValue;
-                        std::cin >> cardValue;
-
-                        if (!std::cin.fail())
-                            cardsToRemove.push_back(cardValue);
-                        else {
-                            std::cout << "Invalid output, enter again" << std::endl;
-                            std::cin.clear();
-                            std::cin.ignore(1000, '\n');
-                            goto InputCardValueToRemove;
-                        }
-                    }
-                    replaceCards(players, i, deck, cardsToRemove);
-                } while (number < 1 || number > 5 || std::cin.fail());
-            }
-            else if (toupper(action) == 'N') continue;
-            else {
-                std::cin.clear();
-                std::cin.ignore(1000, '\n'); 
-                goto TryAgain;
-            }
+                }
+                replaceCards(players, i, deck, cardsToRemove);
+            } while (number < 1 || number > 5 || std::cin.fail());
         }
-
-        dequeNext(playerOrder);
+        else if (toupper(action) == 'N') continue;
+        else {
+            std::cin.clear();
+            std::cin.ignore(1000, '\n'); 
+            goto TryAgain;
+        }
     }
 }
 
