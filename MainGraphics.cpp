@@ -74,8 +74,8 @@ int main() {
     // Init
     //-------------------------------------------------------------------------
 
-    auto window =
-        sf::RenderWindow({WINDOW_WIDTH, WINDOW_HEIGHT}, "CMake SFML Project");
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
+                            "CMake SFML Project");
     window.setFramerateLimit(144);
 
     // Change window background color
