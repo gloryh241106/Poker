@@ -161,10 +161,15 @@ void User_Action::LogIn() {
 }	
 
 void User_Action::Choice() {
+	// Loading data to the game
 	Load_Data();
 	Load_Money();
 	Load_Data_NumGame();
-	// 3 ham nay tai khi khoi dong game
+
+	// Print the game title
+	CLI::title();
+
+	// User action
 	bool CheckInput = false;
 	while (!CheckInput) {
 		std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;

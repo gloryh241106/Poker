@@ -262,13 +262,10 @@ int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder
 /// @param playerOrder Deque contains player order
 /// @param pot Pot of the game
 void showdown(std::vector<Player>& players, std::deque<int>& playerOrder, int& pot) {
-    // int pot = 0;
     int playerCount = playerOrder.size();
+    
+    // Evaluate hands
     for (int i : playerOrder) {
-        // std::cout << "Here " << p.bet << std::endl;
-        // CLI::getEnter();
-        // pot += p.bet;
-        // p.chips -= p.bet;
         if (players[i].folded) continue;
         PokerEngine::eval(players[i].hand.bit());
     }
@@ -283,6 +280,13 @@ void showdown(std::vector<Player>& players, std::deque<int>& playerOrder, int& p
     // Display the hands
     CLI::clearScreen();
     std::cout << "Showdown" << std::endl;
+    CLI::sleep(1000);
+    std::cout << ".";
+    CLI::sleep(1000);
+    std::cout << ".";
+    CLI::sleep(1000);
+    std::cout << ".";
+    CLI::sleep(1000);
     for (int i = 0; i < playerCount; i++) {
         if (players[playerRank[i]].folded) continue;
         std::cout << "Player " << playerRank[i]
@@ -290,11 +294,6 @@ void showdown(std::vector<Player>& players, std::deque<int>& playerOrder, int& p
                   << " (" << PokerEngine::type(players[playerRank[i]].hand)
                   << ")" << std::endl;
     }
-
-    for (int i : playerRank) {
-        std::cout << i + 1 << ' ';
-    }
-
     std::cout << std::endl;
 
     // Distribute the pot
