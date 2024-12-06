@@ -46,8 +46,8 @@ void BackTrackingBet(std::vector<Player>& players, std::deque<int>& playerOrder,
         if (!PrevPlayer.folded || !PrevPlayer.allIn) {
             std::cout << PrevPlayer.name << ", Current bet: " << highestBet
                       << ", Your chips: " << PrevPlayer.chips << std::endl;
-            std::cout << "Choose your action: [1] Fold, [2] Call, [3] All in"
-                      << std::endl;
+            std::cout << "Choose your action: " << std::endl;
+            std::cout << "[1] Fold, [2] Call, [3] All in" << std::endl;
 
         // Get player's choice
         BacktrackingChoose:
@@ -87,73 +87,62 @@ void BackTrackingBet(std::vector<Player>& players, std::deque<int>& playerOrder,
 }
 
 // Phase 1 allow every player to draw their cards
-void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder,
-            Deck& deck) {
+void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& deck) {
     // Shuffle card
     deck.shuffle();
 
-    // Deal card for each player
+    // Get the sleep time and annouce 
+    std::cout << "Dealing cards ...";
+    CLI::sleep(2000);
+
+    // Clear screen and start the game
+    CLI::clearScreen();
+
+    // Main processor of phase 1
     int playerCount = players.size();
     for (int i = 0; i < playerCount; i++) {
+        std::cin.clear();
+        // Deal card
         for (int j = 0; j < 5; j++) {
             players[playerOrder.front()].hand.add(deck.draw());
         }
 
-    TryAgain:
-        //  Check and allow draw card
-        for (int i = 0; i < playerCount; ++i) {
-            // Player& currentPlayer = players[i];
-            std::cout << "CurrentPlayer is player " << i << std::endl;
-            std::cout << "Do you want to draw? (Y/N) " << std::endl;
-            char action;
-            std::cin >> action;
+        // Print the current player's hand
+        std::cout << "Player " << playerOrder.front() << "'s turn " << std::endl;
+        std::cout << "Your hand: " << players[playerOrder.front()].hand.toString() << std::endl;
 
-            if (toupper(action) == 'Y') {
-                int number = 0;
-                do {
-                    std::cout << "Choose number of cards to remove (1 to 5): "
-                              << std::endl;
-                    std::cin >> number;
+        // Get the player option
+        std::cout << "Do you want to draw? ";
+        bool action = CLI::getOptionYN();
 
-                    if (number < 1 || number > 5 || std::cin.fail()) {
-                        std::cout << "Invalid number. Please choose between 1 and 5." << std::endl;
-                        std::cin.clear();
-                        std::cin.ignore(1000, '\n');
-                        continue;
-                    }
+        // Check the player action
+        if (action) {
+            // Get the number of removing cards
+            int number = 0;
+            std::cout << "Choose number of cards to remove ";
+            number = CLI::getOptionNum(1, 5);
+            std::cout << std::endl;
 
-                    std::vector<int> cardsToRemove;
-                    std::cout << "Enter the card values to remove: " << std::endl;
+            // Get the index of the removing card
+            std::vector<int> cardsToRemove;
+            std::cout << "Enter the index of the card you want to remove: (1 - 5) " << std::endl;
 
-                    for (int j = 0; j < number; j++) {
-                    InputCardValueToRemove:
-                        int cardValue;
-                        std::cin >> cardValue;
-
-                        if (!std::cin.fail())
-                            cardsToRemove.push_back(cardValue);
-                        else {
-                            std::cout << "Invalid output, enter again"
-                                      << std::endl;
-                            std::cin.clear();
-                            std::cin.ignore(1000, '\n');
-                            goto InputCardValueToRemove;
-                        }
-                    }
-
-                    replaceCards(players, i, deck, cardsToRemove);
-                } while (number < 1 || number > 5 || std::cin.fail());
-            } else if (toupper(action) == 'N')
-                continue;
-            else {
-                std::cin.clear();
-                std::cin.ignore(1000, '\n');
-
-                goto TryAgain;
+            // Removing cards
+            for (int j = 0; j < number; j++) {
+                int temp = 0;
+                std::cin >> temp;
+                cardsToRemove.push_back(temp); 
             }
+
+            // Replacing cards
+            replaceCards(players, i, deck, cardsToRemove);
         }
 
+        // Change to the next player
         dequeNext(playerOrder);
+        std::cout << "You have finished your turn. It's time for another player...";
+        CLI::sleep(5000);
+        CLI::clearScreen();
     }
 }
 
@@ -166,111 +155,105 @@ void Phase2(std::vector<Player>& players, std::deque<int>& playerOrder, int& pot
         for (int i = 0; i < playerOrder.size(); i++) {
             Player& currentPlayer = players[playerOrder[i]];
 
-            // if (currentPlayer.folded || currentPlayer.allIn) continue;
+            // // Print the current player's hand
+            // std::cout << "Player " << playerOrder.front() << "'s turn " << std::endl;
+            // std::cout << "Your hand: " << players[playerOrder.front()].hand.toString() << std::endl;
 
-            std::cout << currentPlayer.name << ", Current bet: " << highestBet
-                      << ", Your chips: " << currentPlayer.chips << std::endl;
+            // std::cout << currentPlayer.name << ", Current bet: " << highestBet
+            //           << ", Your chips: " << currentPlayer.chips << std::endl;
 
-        reinput:
-            if (highestBet == 0) {
-                std::cout << "Actions: [1] FOLD, [2] CHECK, [4] BET, [6] ALL IN " << std::endl;
-            } else {
-                std::cout << "Actions: [1] FOLD, [3] CALL, [5] RAISE, [6] ALL IN" << std::endl;
-            }
+        // reinput:
+        //     if (highestBet == 0) {
+        //         std::cout << "Actions: [1] FOLD, [2] CHECK, [4] BET, [6] ALL IN " << std::endl;
+        //     } else {
+        //         std::cout << "Actions: [1] FOLD, [3] CALL, [5] RAISE, [6] ALL IN" << std::endl;
+        //     }
 
-            // Get the player's action
-            int action;
-            std::cin >> action;
-            if (std::cin.fail() || action > 5 || action < 1) {
-                std::cout << "Invalid input, try again" << std::endl;
-                std::cin.clear();
-                std::cin.ignore(1000, '\n');
-                goto reinput;
-            }
+        //     // Get the player's action
+        //     int action = CLI::getOneNumber(1, 5);
 
-            // Check player's action
-            switch (action) {
-                case 1:  // Fold
-                    currentPlayer.folded = true;
-                    break;
+            // Betting
+            studPokerBetRound(players, playerOrder, 5, 0, pot, 0);
+            // switch (action) {
+            //     case 1:  // Fold
+            //         currentPlayer.folded = true;
+            //         break;
 
-                case 2:  // Check
-                    if (highestBet != 0) {
-                        std::cout
-                            << "You cannot check, you need to call or raise."
-                            << std::endl;
-                        --i;  // Repeat turn
-                    }
-                    break;
+            //     case 2:  // Check
+            //         if (highestBet != 0) {
+            //             std::cout << "You cannot check, you need to call or raise." << std::endl;
+            //             --i;  // Repeat turn
+            //         }
+            //         break;
 
-                case 3:  // Call
-                    {
-                        int callAmount = highestBet - currentPlayer.bet;
-                        if (callAmount > currentPlayer.chips)
-                            callAmount = currentPlayer.chips;
-                        currentPlayer.chips -= callAmount;
-                        currentPlayer.bet += callAmount;
-                        pot += callAmount;
-                    } 
-                    break;
+            //     case 3:  // Call
+            //         {
+            //             int callAmount = highestBet - currentPlayer.bet;
+            //             if (callAmount > currentPlayer.chips)
+            //                 callAmount = currentPlayer.chips;
+            //             currentPlayer.chips -= callAmount;
+            //             currentPlayer.bet += callAmount;
+            //             pot += callAmount;
+            //         } 
+            //         break;
 
-                case 4:  // Bet
-                    {
-                        if (highestBet != 0) {
-                            std::cout << "You are not allow to bet, please choose "
-                                        "another action"
-                                    << std::endl;
-                            --i;
-                        } else {
-                            int betAmount;
-                            std::cout << "Enter bet amount: ";
-                            std::cin >> betAmount;
+            //     case 4:  // Bet
+            //         {
+            //             if (highestBet != 0) {
+            //                 std::cout << "You are not allow to bet, please choose "
+            //                             "another action"
+            //                         << std::endl;
+            //                 --i;
+            //             } else {
+            //                 int betAmount;
+            //                 std::cout << "Enter bet amount: ";
+            //                 std::cin >> betAmount;
 
-                            if (betAmount > currentPlayer.chips || betAmount <= 0) {
-                                std::cout << "Invalid bet amount." << std::endl;
-                                --i;
-                                break;
-                            }
+            //                 if (betAmount > currentPlayer.chips || betAmount <= 0) {
+            //                     std::cout << "Invalid bet amount." << std::endl;
+            //                     --i;
+            //                     break;
+            //                 }
 
-                            currentPlayer.chips -= betAmount;
-                            currentPlayer.bet += betAmount;
-                            pot += betAmount;
-                            highestBet = std::max(highestBet, currentPlayer.bet);
-                            BackTrackingBet(players, playerOrder, pot, highestBet, i);
-                            break;
-                        }
-                    }
+            //                 currentPlayer.chips -= betAmount;
+            //                 currentPlayer.bet += betAmount;
+            //                 pot += betAmount;
+            //                 highestBet = std::max(highestBet, currentPlayer.bet);
+            //                 BackTrackingBet(players, playerOrder, pot, highestBet, i);
+            //                 break;
+            //             }
+            //         }
 
-                case 5:  // Raise
-                    {
-                        int raiseAmount;
-                        std::cout << "Enter raise amount: ";
-                        std::cin >> raiseAmount;
+            //     case 5:  // Raise
+            //         {
+            //             int raiseAmount;
+            //             std::cout << "Enter raise amount: ";
+            //             std::cin >> raiseAmount;
 
-                        int totalBet = raiseAmount + highestBet;
-                        if (totalBet > currentPlayer.chips)
-                            totalBet = currentPlayer.chips;
+            //             int totalBet = raiseAmount + highestBet;
+            //             if (totalBet > currentPlayer.chips)
+            //                 totalBet = currentPlayer.chips;
 
-                        currentPlayer.chips -= totalBet;
-                        currentPlayer.bet += totalBet;
-                        pot += totalBet;
-                        highestBet = std::max(highestBet, currentPlayer.bet);
-                        BackTrackingBet(players, playerOrder, pot, highestBet, i);
-                    } 
-                    break;
+            //             currentPlayer.chips -= totalBet;
+            //             currentPlayer.bet += totalBet;
+            //             pot += totalBet;
+            //             highestBet = std::max(highestBet, currentPlayer.bet);
+            //             BackTrackingBet(players, playerOrder, pot, highestBet, i);
+            //         } 
+            //         break;
 
-                case 6:  // All-in
-                    {
-                        pot += currentPlayer.chips;
-                        currentPlayer.bet += currentPlayer.chips;
-                        currentPlayer.chips = 0;
-                        currentPlayer.allIn = true;
-                        highestBet = std::max(highestBet, currentPlayer.bet);
-                        BackTrackingBet(players, playerOrder, pot, highestBet, i);
-                    }
-                    break;
+            //     case 6:  // All-in
+            //         {
+            //             pot += currentPlayer.chips;
+            //             currentPlayer.bet += currentPlayer.chips;
+            //             currentPlayer.chips = 0;
+            //             currentPlayer.allIn = true;
+            //             highestBet = std::max(highestBet, currentPlayer.bet);
+            //             BackTrackingBet(players, playerOrder, pot, highestBet, i);
+            //         }
+            //         break;
                     
-            }
+            // }
         }
         bettingRound = false;
     }

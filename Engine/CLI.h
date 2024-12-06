@@ -38,16 +38,35 @@ namespace CLI {
         return userChoice;
     }
 
+    /// @brief This function will get the user's choice (Which is a number in range [n, m])
+    /// @param n The left side
+    /// @param m The right side
+    /// @return An integer
+    inline int getOneNumber(int n, int m) {
+        int userChoice = -1;
+        while (userChoice < n || userChoice > m) {
+            std::cin >> userChoice;
+            std::cin.ignore(std::numeric_limits<int>::max(), '\n');
+            if (userChoice < n || userChoice > m) 
+                std::cout << "Invalid value! Please enter again! \n";
+        }
+
+        return userChoice;
+    }
+
     /// @brief This function will ask user choose Yes or No 
     /// @return Boolean shows the player's option
     inline bool getOptionYN() {
         std::string userChoiceStr;
-        while (1) {
+        do {
             std::cout << "(y/n): ";
             std::getline(std::cin, userChoiceStr);
             if (userChoiceStr == "y" || userChoiceStr == "Y") return 1;
-            if (userChoiceStr == "n" || userChoiceStr == "N") return 0;
-        }
+            else if (userChoiceStr == "n" || userChoiceStr == "N") return 0;
+            else {
+                std::cout << "Invalid choice! Please enter again! \n";
+            }
+        } while (1);
 
         return 0;
     }

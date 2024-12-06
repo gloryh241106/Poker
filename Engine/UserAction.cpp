@@ -86,8 +86,6 @@ void User_Action::SignUp() {
 	std::string HashedPassWord;
 	bool flag = true;
 	do {
-		// std::cin.clear();
-		// std::cin.ignore(1000, '\n');
 		std::cout << "Enter your username:" << " ";
 		getline(std::cin, UserName);
 		if (UserName.empty()) {
@@ -122,7 +120,8 @@ void User_Action::SignUp() {
 		}
 		std::cout << "Sign up successfully" << std::endl; //Username chua tung duoc luu => khong trung ten
 		Save_Data(UserName, PassWord);
-		User_Money(UserName, 5000); // 5000dola mac dinh
+		User_Money(UserName, 5000); // 5000 USD mac dinh
+		CLI::getEnter();
 		break;
 	} while (true);
 
@@ -131,8 +130,6 @@ void User_Action::SignUp() {
 void User_Action::LogIn() {
 	std::string UserName, PassWord;
 	while (true) {
-		std::cin.clear();
-		std::cin.ignore(1000, '\n');
 		std::cout << "Enter your UserName" << std::endl;
 		getline(std::cin, UserName);
 		std::cout << "Enter your PassWord" << std::endl;
@@ -148,9 +145,8 @@ void User_Action::LogIn() {
 			char action;
 			std::cin >> action;
 			if (std::cin.fail() || action != 'y' || action != 'Y' || action != 'n' || action != 'N') {
-				std::cin.clear();
-				std::cin.ignore(1000, '\n');
 				std::cout << "Invalid input, please try again" << std::endl;
+				CLI::getEnter();
 				goto TryAgain;
 			}
 			toupper(action);
@@ -171,7 +167,7 @@ void User_Action::Choice() {
 	// 3 ham nay tai khi khoi dong game
 	bool CheckInput = false;
 	while (!CheckInput) {
-		std::cout << std::endl << "What you want to do?" << std::endl;
+		std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;
 		std::cout << "1. Sign Up\n";
 		std::cout << "2. Log In\n";
 		std::cout << "3. Exit\n";
@@ -190,8 +186,6 @@ void User_Action::Choice() {
 		}
 		else {
 			std::cout << "Invalid input, please try again " << std::endl;
-			std::cin.clear();
-			std::cin.ignore(1000, '\n');
 			Choice();
 			break;
 		}

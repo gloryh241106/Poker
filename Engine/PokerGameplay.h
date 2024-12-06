@@ -80,8 +80,8 @@ PlayerAction askPlayerAction(Player& player, const int& currBet, const int& minR
 
 /// @brief https://en.wikipedia.org/wiki/Betting_in_poker
 /// @return Returns the index of the player who won the round, otherwise returns -1
-int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder, int blind, bool preflop, int& pot, bool isFiveCardStud) {
-    int playerCount = player.size();
+int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder, int blind, bool preflop, int& pot, bool isFiveCardStud) {
+    int playerCount = players.size();
     int playerInGame = playerOrder.size();
 
     if (playerInGame < 1) {
@@ -98,14 +98,14 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
     if (preflop) {
         forcedBet = 1;
         if (playerInGame == 2) {
-            player[playerOrder.front()].bet += blind;  // Small blind
+            players[playerOrder.front()].bet += blind;  // Small blind
             dequeNext(playerOrder);
-            player[playerOrder.front()].bet += blind * 2;  // Big blind
+            players[playerOrder.front()].bet += blind * 2;  // Big blind
         } else {
             dequeNext(playerOrder);
-            player[playerOrder.front()].bet += blind;  // Small blind
+            players[playerOrder.front()].bet += blind;  // Small blind
             dequeNext(playerOrder);
-            player[playerOrder.front()].bet += blind * 2;  // Big blind
+            players[playerOrder.front()].bet += blind * 2;  // Big blind
         }
     }
 
@@ -124,7 +124,7 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
             dequeNext(playerOrder);
 
             // Skip players who have folded
-            if (player[playerOrder.front()].folded) {
+            if (players[playerOrder.front()].folded) {
                 // dequeNext(playerOrder);
                 continue;
             }
@@ -134,7 +134,7 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
                 CLI::clearScreen();
                 for (int i : playerOrder) {
                     std::cout << "Player's " << i + 1
-                              << " hand: " << player[i].hand.toString(1)
+                              << " hand: " << players[i].hand.toString(1)
                               << std::endl;
                 }
             }
@@ -145,14 +145,14 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
             std::cout << "Player " << playerOrder.front()
                       << "'s turn " << std::endl;
             std::cout << "Your hand: "
-                      << player[playerOrder.front()].hand.toString() << std::endl;
+                      << players[playerOrder.front()].hand.toString() << std::endl;
             std::cout << "Your remaining chips: " 
-                      << player[playerOrder.front()].chips << std::endl;
+                      << players[playerOrder.front()].chips << std::endl;
             std::cout << "You bet: " 
-                      << player[playerOrder.front()].bet << std::endl;
+                      << players[playerOrder.front()].bet << std::endl;
             std::cout << "Pot: " << pot << std::endl;
 
-            if (player[playerOrder.front()].allIn) {
+            if (players[playerOrder.front()].allIn) {
                 std::cout << "You have gone all in" << std::endl;
                 CLI::getEnter();
                 if (playerOrder.front() == raisedPlayer) {
@@ -166,16 +166,16 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
             std::cout << "Current bet amount: " << currBet << std::endl;
             std::cout << "What do you want to do?" << std::endl;
 
-            PlayerAction op = askPlayerAction(player[playerOrder.front()], currBet, minRaiseDiff, preflop);
+            PlayerAction op = askPlayerAction(players[playerOrder.front()], currBet, minRaiseDiff, preflop);
             std::cout << std::endl;
 
             if (op == PlayerAction::CHECK ||
                 op == PlayerAction::CALL) {  // CHECK/CALL
-                player[playerOrder.front()].bet = currBet;
+                players[playerOrder.front()].bet = currBet;
 
-                if (player[playerOrder.front()].chips <= currBet) {  // ALL IN
-                    player[playerOrder.front()].allIn = 1;
-                    player[playerOrder.front()].bet = player[playerOrder.front()].chips;
+                if (players[playerOrder.front()].chips <= currBet) {  // ALL IN
+                    players[playerOrder.front()].allIn = 1;
+                    players[playerOrder.front()].bet = players[playerOrder.front()].chips;
                 }
 
                 // if (playerOrder.front() == raisedPlayer) {
@@ -186,13 +186,13 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
                 // }
             } else if (op == PlayerAction::BET) {
                 std::cout << "How much do you want to bet?" << std::endl;
-                int bet = CLI::getOptionNum(blind * 2, player[playerOrder.front()].chips);
+                int bet = CLI::getOptionNum(blind * 2, players[playerOrder.front()].chips);
                 minRaiseDiff = bet - currBet;
                 currBet = bet;
-                player[playerOrder.front()].bet = currBet;
+                players[playerOrder.front()].bet = currBet;
 
-                if (currBet == player[playerOrder.front()].chips) {  // ALL IN
-                    player[playerOrder.front()].allIn = 1;
+                if (currBet == players[playerOrder.front()].chips) {  // ALL IN
+                    players[playerOrder.front()].allIn = 1;
                 }
 
                 live = true;
@@ -201,22 +201,22 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
                 std::cout << "Min raise: " << currBet + minRaiseDiff
                           << std::endl;
                 std::cout << "How much do you want to raise to?" << std::endl;
-                int raise = CLI::getOptionNum(currBet + minRaiseDiff, player[playerOrder.front()].chips);
+                int raise = CLI::getOptionNum(currBet + minRaiseDiff, players[playerOrder.front()].chips);
                 minRaiseDiff = raise - currBet;
                 currBet = raise;
-                player[playerOrder.front()].bet = currBet;
+                players[playerOrder.front()].bet = currBet;
 
-                if (currBet >= player[playerOrder.front()].chips) {  // ALL IN
-                    player[playerOrder.front()].allIn = 1;
+                if (currBet >= players[playerOrder.front()].chips) {  // ALL IN
+                    players[playerOrder.front()].allIn = 1;
                 }
 
                 live = true;
                 raisedPlayer = playerOrder.front();
             } else if (op == PlayerAction::ALL_IN) {  // ALL IN
-                player[playerOrder.front()].allIn = 1;
-                player[playerOrder.front()].bet = player[playerOrder.front()].chips;
-                int diff = player[playerOrder.front()].chips - currBet;
-                currBet = std::max(currBet, player[playerOrder.front()].bet);
+                players[playerOrder.front()].allIn = 1;
+                players[playerOrder.front()].bet = players[playerOrder.front()].chips;
+                int diff = players[playerOrder.front()].chips - currBet;
+                currBet = std::max(currBet, players[playerOrder.front()].bet);
 
                 // If the player goes all-in, others are only allowed to
                 // re-raise if he exceeds the minimum raise.
@@ -226,14 +226,14 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
                     raisedPlayer = playerOrder.front();
                 }
             } else if (op == PlayerAction::FOLD) {  // FOLD
-                player[playerOrder.front()].folded = 1;
+                players[playerOrder.front()].folded = 1;
                 playerInGame--;
             }
 
             // Check if there is only one player left
             if (playerInGame == 1) {
                 for (int i = 0; i < playerCount; i++) {
-                    if (!player[i].folded) {
+                    if (!players[i].folded) {
                         return i;
                     }
                 }
@@ -248,10 +248,10 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
 
     // Collect the pot
     for (int i : playerOrder) {
-        pot += player[i].bet;
-        player[i].showdownBet += player[i].bet;
-        player[i].chips -= player[i].bet;
-        player[i].bet = 0;
+        pot += players[i].bet;
+        players[i].showdownBet += players[i].bet;
+        players[i].chips -= players[i].bet;
+        players[i].bet = 0;
     }
 
     return -1;
@@ -261,7 +261,7 @@ int studPokerBetRound(std::vector<Player>& player, std::deque<int>& playerOrder,
 /// @param player Vector contains N players
 /// @param playerOrder Deque contains player order
 /// @param pot Pot of the game
-void showdown(std::vector<Player>& player, std::deque<int>& playerOrder, int& pot) {
+void showdown(std::vector<Player>& players, std::deque<int>& playerOrder, int& pot) {
     // int pot = 0;
     int playerCount = playerOrder.size();
     for (int i : playerOrder) {
@@ -269,25 +269,25 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder, int& po
         // CLI::getEnter();
         // pot += p.bet;
         // p.chips -= p.bet;
-        if (player[i].folded) continue;
-        PokerEngine::eval(player[i].hand.bit());
+        if (players[i].folded) continue;
+        PokerEngine::eval(players[i].hand.bit());
     }
 
     std::vector<int> playerRank(playerOrder.begin(), playerOrder.end());
 
     // Sort the players by hand strength
     std::sort(playerRank.begin(), playerRank.end(), [&](int a, int b) {
-        return PokerEngine::compareHands(player[a].hand, player[b].hand);
+        return PokerEngine::compareHands(players[a].hand, players[b].hand);
     });
 
     // Display the hands
     CLI::clearScreen();
     std::cout << "Showdown" << std::endl;
     for (int i = 0; i < playerCount; i++) {
-        if (player[playerRank[i]].folded) continue;
+        if (players[playerRank[i]].folded) continue;
         std::cout << "Player " << playerRank[i]
-                  << "'s hand: " << player[playerRank[i]].hand.toString()
-                  << " (" << PokerEngine::type(player[playerRank[i]].hand)
+                  << "'s hand: " << players[playerRank[i]].hand.toString()
+                  << " (" << PokerEngine::type(players[playerRank[i]].hand)
                   << ")" << std::endl;
     }
 
@@ -300,22 +300,22 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder, int& po
     // Distribute the pot
     int i = 0;
     while (i < playerCount && pot > 0) {
-        player[playerRank[i]].showdownBet = std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
-        player[playerRank[i]].chips += player[playerRank[i]].showdownBet;
-        pot -= std::min(pot, player[playerRank[i]].showdownBet * (playerCount - i));
+        players[playerRank[i]].showdownBet = std::min(pot, players[playerRank[i]].showdownBet * (playerCount - i));
+        players[playerRank[i]].chips += players[playerRank[i]].showdownBet;
+        pot -= std::min(pot, players[playerRank[i]].showdownBet * (playerCount - i));
         i--;
     }
 
     // Display the chips
     for (int j = 0; j < playerCount; j++) {
-        std::cout << "Player " << j + 1 << " has " << player[j].chips << " chips" << std::endl;
+        std::cout << "Player " << j + 1 << " has " << players[j].chips << " chips" << std::endl;
     }
 
     // Remove lost players
     i = 0;
     while (i < playerOrder.size()) {
-        if (player[playerOrder.front()].chips == 0) {
-            player[playerOrder.front()].lost = 1;
+        if (players[playerOrder.front()].chips == 0) {
+            players[playerOrder.front()].lost = 1;
             playerOrder.pop_front();
             continue;
         }
@@ -326,11 +326,11 @@ void showdown(std::vector<Player>& player, std::deque<int>& playerOrder, int& po
 
     // Reset the players
     for (int k : playerOrder) {
-        player[k].hand.clear();
-        player[k].bet = 0;
-        player[k].folded = 0;
-        player[k].allIn = 0;
-        player[k].showdownBet = 0;
+        players[k].hand.clear();
+        players[k].bet = 0;
+        players[k].folded = 0;
+        players[k].allIn = 0;
+        players[k].showdownBet = 0;
     }
 
     CLI::getEnter();

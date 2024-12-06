@@ -1,6 +1,14 @@
 #include "Engine/Gamemode.h"
 
 int main() {
+    // Clear the Screen
+    CLI::clearScreen();
+    
+    // Log in - Sign Up 
+    User_Action User;
+    User.Choice();
+
+    // Get in the game
     bool exited = 0;
     while (!exited) {
         CLI::clearScreen();
@@ -19,8 +27,7 @@ int main() {
         }
     }
 
-    User_Action User;
-    User.Choice();
+
     return 0;
     // Hand hand;
     // hand.add(Rank::ACE << 2 | Suit::CLUBS);
