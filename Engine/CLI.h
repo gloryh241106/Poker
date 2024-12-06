@@ -9,13 +9,13 @@
 
 namespace CLI {
     /// @brief This function will clear all the screen
-    void clearScreen() {
+    inline void clearScreen() {
         system("cls");
     }
 
     /// @brief This function will let the program sleep in miliseconds
     /// @param milliseconds 
-    void sleep(int milliseconds) {
+    inline void sleep(int milliseconds) {
         // https://stackoverflow.com/a/10613664
         std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
     }
@@ -24,7 +24,7 @@ namespace CLI {
     /// @param n The left side
     /// @param m The right side
     /// @return An integer shows the player's option
-    int getOptionNum(int n, int m) {
+    inline int getOptionNum(int n, int m) {
         int userChoice = -1;
         while (userChoice < n || userChoice > m) {
             if (n != m)
@@ -40,7 +40,7 @@ namespace CLI {
 
     /// @brief This function will ask user choose Yes or No 
     /// @return Boolean shows the player's option
-    bool getOptionYN() {
+    inline bool getOptionYN() {
         std::string userChoiceStr;
         while (1) {
             std::cout << "(y/n): ";
@@ -53,13 +53,13 @@ namespace CLI {
     }
 
     /// @brief This function will get the player's Enter
-    void getEnter() {
+    inline void getEnter() {
         std::cout << "Press Enter to continue...";
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
     }
 
     /// @brief This function will print the game title
-    void title() {
+    inline void title() {
         std::cout << "\n";
         std::cout << "  ____ _               _                    _             \n";
         std::cout << " / ___| | __ _ ___ ___(_) ___   _ __   ___ | | _____ _ __ \n";
@@ -74,7 +74,7 @@ namespace CLI {
     }
 
     /// @brief This function will print the game tutorial
-    void printTutorial() {
+    inline void printTutorial() {
         std::cout << "Here goes tutorial\n\n";
         std::cout << "Press Enter to go back...";
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
@@ -82,7 +82,7 @@ namespace CLI {
 
     /// @brief This function will ask the player choose a main option
     /// @return An integer shows the player's choice
-    int getMainOption() {
+    inline int getMainOption() {
         std::cout << "Main menu:\n\n";
         std::cout << "1. New game\n";
         std::cout << "2. Tutorial\n";
@@ -94,7 +94,7 @@ namespace CLI {
 
     /// @brief This function will ask the player choose a game mode
     /// @return An integer shows the player's choice
-    int getGameMode() {
+    inline int getGameMode() {
         std::cout << "Choose a Gamemode:\n\n";
         std::cout << "1. Standard Poker\n";
         std::cout << "2. Five Card Draw Poker\n";
@@ -107,7 +107,7 @@ namespace CLI {
 
     /// @brief This function will ask the player choose a number of people to play with
     /// @return An integer shows the player's choice
-    int getPlayerCount() {
+    inline int getPlayerCount() {
         std::cout << "How many players do you want to play with?" << std::endl;
         return getOptionNum(2, 8);
     }

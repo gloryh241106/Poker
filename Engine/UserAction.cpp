@@ -8,9 +8,9 @@ std::vector<std::pair<double, std::string>> Board;
 
 // Tai ten dang nhap va mat khau da duoc luu cua nguoi dung vao chuong trinh
 void User_Action::Load_Data() {
-	std::fstream myFile("UserData.txt", std::ios::out | std::ios::app); // Tao file neu chua ton tai file san
+	std::fstream myFile("data/UserData.txt", std::ios::out | std::ios::app); // Tao file neu chua ton tai file san
 	myFile.close(); // Dong lai file sau khi kiem tra
-	myFile.open("UserData.txt", std::ios::in); 
+	myFile.open("data/UserData.txt", std::ios::in); 
 	std::string UserName, PassWord;
 	if (myFile.is_open()) {
 		while (myFile >> UserName >> PassWord)
@@ -22,9 +22,9 @@ void User_Action::Load_Data() {
 
 // Tai so tien cua nguoi dung 
 void User_Action::Load_Money() {
-	std::fstream myFile("UserMoney.txt", std::ios::out | std::ios::app);
+	std::fstream myFile("data/UserMoney.txt", std::ios::out | std::ios::app);
 	myFile.close(); 
-	myFile.open("UserMoney.txt", std::ios::in);
+	myFile.open("data/UserMoney.txt", std::ios::in);
 	std::string UserName;
 	long long Money;
 	if (myFile.is_open()) {
@@ -38,7 +38,7 @@ void User_Action::Load_Money() {
 //Luu thong tin nguoi dung dang ki
 void User_Action::Save_Data(std::string UserName, std::string PassWord) {
 	std::fstream myFile;
-	myFile.open("UserData.txt", std::ios::app);
+	myFile.open("data/UserData.txt", std::ios::app);
 	if (myFile.is_open()) {
 		myFile << UserName << std::endl;
 		myFile << PassWord << std::endl;
@@ -62,7 +62,7 @@ void User_Action::Save_Data(std::string UserName, std::string PassWord) {
 //Luu money nguoi dung luc dang ki
 void User_Action::User_Money(std::string UserName, long long Money) {
 	std::fstream myFile;
-	myFile.open("UserMoney.txt", std::ios::app);
+	myFile.open("data/UserMoney.txt", std::ios::app);
 	if (myFile.is_open()) {
 		myFile << UserName << std::endl;
 		myFile << Money << std::endl;
@@ -86,8 +86,8 @@ void User_Action::SignUp() {
 	std::string HashedPassWord;
 	bool flag = true;
 	do {
-		std::cin.clear();
-		std::cin.ignore(1000, '\n');
+		// std::cin.clear();
+		// std::cin.ignore(1000, '\n');
 		std::cout << "Enter your username:" << " ";
 		getline(std::cin, UserName);
 		if (UserName.empty()) {
@@ -169,20 +169,22 @@ void User_Action::Choice() {
 	Load_Money();
 	Load_Data_NumGame();
 	// 3 ham nay tai khi khoi dong game
-	std::string action;
 	bool CheckInput = false;
 	while (!CheckInput) {
-		std::cout << std::endl << "What you want to do? Please type 1 of 3 (SIGN UP/ LOG IN/ OUT)" << std::endl;
-		getline(std::cin, action);
-		if (action == "SIGN UP") {
+		std::cout << std::endl << "What you want to do?" << std::endl;
+		std::cout << "1. Sign Up\n";
+		std::cout << "2. Log In\n";
+		std::cout << "3. Exit\n";
+		int action = CLI::getOptionNum(1, 3);
+		if (action == 1) {
 			SignUp();
 			CheckInput = true;
 		}
-		else if (action == "LOG IN") {
+		else if (action == 2) {
 			LogIn();
 			CheckInput = true;
 		}
-		else if (action == "OUT") {
+		else if (action == 3) {
 			std::cout << "Thanks for using our game!" << std::endl;
 			break;
 		}
@@ -201,7 +203,7 @@ void User_Action::Update_Money(std::string UserName, long long MoneyChange) {
 	if (User_Money_Data.find(UserName) != User_Money_Data.end()) {
 		User_Money_Data[UserName] += MoneyChange;
 		std::fstream myFile;
-		myFile.open("UserMoney.txt", std::ios::out);
+		myFile.open("data/UserMoney.txt", std::ios::out);
 		if (myFile.is_open()) {
 			for (const auto& user : User_Money_Data) {
 				myFile << user.first << std::endl;
@@ -222,7 +224,6 @@ void User_Action::Display_Money(std::string UserName) {
 }
 
 int User_Action::Num_Game_Played(std::string Username) {
-
 	return User_Game_Played[Username];
 }
 
@@ -244,9 +245,9 @@ void User_Action::Display_Leader_Board(std::string Username) {
 }
 
 void User_Action::Load_Data_NumGame() {
-	std::fstream myFile("UserGamePlayed.txt", std::ios::out | std::ios::app); 
+	std::fstream myFile("data/UserGamePlayed.txt", std::ios::out | std::ios::app); 
 	myFile.close(); 
-	myFile.open("UserGamePlayed.txt", std::ios::in);
+	myFile.open("data/UserGamePlayed.txt", std::ios::in);
 	std::string Username;
 	int GamePlayed, GameWon;
 	if (myFile.is_open()) {
