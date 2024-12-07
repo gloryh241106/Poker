@@ -159,7 +159,7 @@ void User_Action::SignUp(std::string& Username1) {
 		User_Money(UserName, 1000); // 1000 USD mac dinh
 		//CLI::getEnter();
 		LogIn(Username1);
-		break;
+		return;
 
 	} while (true);
 }
@@ -178,7 +178,7 @@ void User_Action::LogIn(std::string& Username1) {
 		if (User_Data_Storage.find(UserName) != User_Data_Storage.end() && User_Data_Storage[UserName] == PassWord) {
 			std::cout << "Log in successfully" << std::endl;
 			Username1 = UserName; // Update the reference parameter
-			break;
+			return;
 		}
 		else {
 			std::cout << "Username or Password is not correct!" << std::endl;
@@ -198,11 +198,11 @@ void User_Action::LogIn(std::string& Username1) {
 
 			if (action == 'Y') {
 				SignUp(Username1);
-				break; 
+				return;
 			}
 			else if (action == 'N') {
 				Choice(Username1);
-				break;
+				return;
 			}
 		}
 	}
@@ -225,11 +225,9 @@ bool User_Action::Choice(std::string& Username) {
 	int action = CLI::getOptionNum(0, 2);
 	if (action == 1) {
 		SignUp(Username);
-		return true;
 	}
 	else if (action == 2) {
 		LogIn(Username);
-		return true;
 	}
 	else if (action == 0) {
 		std::cout << "Thanks for using our game!" << std::endl;
@@ -238,8 +236,9 @@ bool User_Action::Choice(std::string& Username) {
 	else {
 		std::cout << "Invalid input, please try again " << std::endl;
 		Choice(Username);
-		return true;
 	}
+
+	return true;
 
 }
 

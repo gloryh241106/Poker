@@ -16,7 +16,7 @@
 
 void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, const std::vector<int>& cardsToRemove) {
     // Removing cards from player's hand
-    auto& Card = players[orderPlayer].hand.cards;
+    auto Card = players[orderPlayer].hand.cards;
     std::vector<int> removedCards;
 
     // Loại bỏ các lá bài dựa trên chỉ số trong cardsToRemove
@@ -30,11 +30,10 @@ void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, con
             std::cout << "Invalid index: " << index << " in cardsToRemove, skipping." << std::endl;
         }
     }
-    for (auto x : removedCards)
-        std::cout << "DEBUG" << x << " " << std::endl;
+
     // Add removed card to deck
     for (int card : removedCards) {
-        deck.addCard(card, removedCards.size(), players.size());
+        deck.addCard(card, removedCards.size());
     }
 
     // Shuffle deck
@@ -86,13 +85,27 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
             // Get the index of the removing card
             std::vector<int> cardsToRemove;
             std::cout << "Enter the index of the card you want to remove: (1 - 5) " << std::endl;
-
+            bool visit[12];
+            for (int i = 0; i < 12; i++)
+                visit[i] = false;
             // Removing cards
             for (int j = 0; j < number; j++) {
                 int temp = 0;
                 std::cin >> temp;
-                cardsToRemove.push_back(temp); 
+                if (!visit[temp]) {
+                    visit[temp] = true;
+                    cardsToRemove.push_back(temp - 1);
+                }
+                else {
+                    std::cout << "Can not choose the an index more than one time" << std::endl;
+                    j--;
+                }
             }
+            for (int i = 0; i < 12; i++)
+                visit[i] = false;
+
+            // Ignore \n
+            std::cin.ignore(std::numeric_limits<int>::max(), '\n');
 
             // Replacing cards
             replaceCards(players, i, deck, cardsToRemove);
@@ -103,6 +116,7 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
         std::cout << "You have finished your turn. It's time for another player...";
         CLI::sleep(5000);
         CLI::clearScreen();
+        CLI::sleep(2000);
     }
 }
 

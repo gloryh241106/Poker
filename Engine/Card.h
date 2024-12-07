@@ -77,8 +77,8 @@ public:
         deckBit &= ~(1ll << deck[deckTop]);
         deckTop--;
     }
-    void addCard(int card, int Size, int NumPlayer) {
-        int i = 51 - NumPlayer* 5;
+    void addCard(int card, int Size) {
+        int i = 52;
         deck[i - Size] = card;
         i++;
     }
