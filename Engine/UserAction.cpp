@@ -126,6 +126,7 @@ void User_Action::LogIn() {
 		getline(std::cin, PassWord);
 		if (User_Data_Storage.find(UserName) != User_Data_Storage.end() && User_Data_Storage[UserName] == PassWord) {
 			std::cout << "Log in successfully" << std::endl; //Thong tin nhap trung khop voi thong tin da duoc luu
+			CLI::sleep(1000);
 			return;
 		}
 		else {
