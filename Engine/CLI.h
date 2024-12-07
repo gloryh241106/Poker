@@ -94,6 +94,7 @@ namespace CLI {
   
     /// @brief This function will print the game tutorial
     inline void printTutorial() {
+
         std::cout << std::setfill('=') << std::setw(60) << "=" << std::endl;
         std::cout << std::setfill(' ') << std::setw(40) << "TUTORIAL MODE GAMEPLAY" << std::endl;
         std::cout << std::setfill('=') << std::setw(60) << "=" << std::endl;
@@ -138,6 +139,7 @@ namespace CLI {
             << "      - XI BAN: Pair of Aces.\n"
             << "      - NGU LINH: 5 cards, total <21.\n";
         std::cout << std::setfill('-') << std::setw(60) << "-" << std::endl;
+
         std::cout << "Press Enter to go back...";
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
     }
@@ -162,7 +164,7 @@ namespace CLI {
         std::cout << "1. Standard Poker\n";
         std::cout << "2. Five Card Draw Poker\n";
         std::cout << "3. Five Card Stud Poker\n";
-        std::cout << "4. Chinese Poker\n\n";
+        std::cout << "4. Chinese Blackjack\n\n";
         std::cout << "Choose an option by pressing a number: ";
 
         return getOptionNum(1, 4);

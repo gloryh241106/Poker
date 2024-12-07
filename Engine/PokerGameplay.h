@@ -136,7 +136,7 @@ int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder
 
             // Skip players who have folded
             if (players[playerOrder.front()].folded) {
-                // dequeNext(playerOrder);
+                dequeNext(playerOrder);
                 continue;
             }
 
@@ -161,6 +161,7 @@ int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder
                 << players[playerOrder.front()].chips << std::endl;
             std::cout << "You bet: "
                 << players[playerOrder.front()].bet << std::endl;
+
             std::cout << "Pot: " << pot << std::endl;
 
             if (players[playerOrder.front()].allIn) {
@@ -344,6 +345,7 @@ void showdown(std::vector<Player>& players, std::deque<int>& playerOrder, int& p
         //User.Display_Leader_Board(players[j].name);
     }
 
+
     // Remove lost players
     i = 0;
     while (i < playerOrder.size()) {
@@ -510,7 +512,7 @@ void standardPokerGameRound(std::vector<Player>& player, std::deque<int>& player
     CLI::clearScreen();
     std::cout << "Betting" << std::endl;
     CLI::sleep(1000);
-    int lastPlayer = studPokerBetRound(player, playerOrder, blind, 1, pot, 0);
+    int lastPlayer = studPokerBetRound(player, playerOrder, blind, 0, pot, 0);
 
     // Player wins because everyone else folded
     if (lastPlayer != -1) {

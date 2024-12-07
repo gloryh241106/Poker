@@ -45,52 +45,6 @@ void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, con
         players[orderPlayer].hand.add(deck.draw());
 }
 
-void BackTrackingBet(std::vector<Player>& players, std::deque<int>& playerOrder, int& pot, int& highestBet, int i) {
-    for (int j = 0; j < i; j++) {
-        Player& PrevPlayer = players[playerOrder[j]];
-        if (!PrevPlayer.folded || !PrevPlayer.allIn) {
-            std::cout << PrevPlayer.name << ", Current bet: " << highestBet
-                      << ", Your chips: " << PrevPlayer.chips << std::endl;
-            std::cout << "Choose your action: " << std::endl;
-            std::cout << "[1] Fold, [2] Call, [3] All in" << std::endl;
-
-        // Get player's choice
-        BacktrackingChoose:
-            int Choose;
-            std::cin >> Choose;
-
-            // Checking player's choice
-            if (Choose < 1 || Choose > 3 || std::cin.fail()) {
-                std::cout << "Invalid Input, choose from 1 to 3" << std::endl;
-                std::cin.clear();
-                std::cin.ignore(1000, '\n');
-                goto BacktrackingChoose;
-            }
-
-            switch (Choose) {
-                case 1:
-                    PrevPlayer.folded = true;
-                    break;
-                case 2: {
-                    int callAmount = highestBet - PrevPlayer.bet;
-                    if (callAmount > PrevPlayer.chips)
-                        callAmount = PrevPlayer.chips;
-                    PrevPlayer.chips -= callAmount;
-                    PrevPlayer.bet += callAmount;
-                    pot += callAmount;
-                } break;
-                case 3: {
-                    pot += PrevPlayer.chips;
-                    PrevPlayer.bet += PrevPlayer.chips;
-                    PrevPlayer.chips = 0;
-                    PrevPlayer.allIn = true;
-                    highestBet = std::max(highestBet, PrevPlayer.bet);
-                } break;
-            }
-        }
-    }
-}
-
 // Phase 1 allow every player to draw their cards
 void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& deck) {
     // Shuffle card

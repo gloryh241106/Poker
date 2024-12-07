@@ -3,7 +3,7 @@
 #ifndef GAMEMODE_H
 #define GAMEMODE_H
 
-#include "ChinesePokerGameplay.h"
+#include "ChineseBlackjackGameplay.h"
 #include "CLI.h"
 #include "FiveCardDraw.h"
 #include "Player.h"
@@ -42,7 +42,14 @@ void StandardPoker(std::string Username) {
         playerOrder.push_back(i);
     }
 
-    standardPokerGameRound(player, playerOrder, 5);
+    int round = 1;
+    while (playerOrder.size() > 1) {
+        std::cout << "Round " << round << std::endl;
+        standardPokerGameRound(player, playerOrder, 5);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
+    }
 }
 
 void FiveCardDrawGame(std::string Username) {
@@ -83,8 +90,15 @@ void FiveCardDrawGame(std::string Username) {
     int pot = 0;
     // int dealerIndex = 0;
 
-    Phase1(player, playerOrder, deck);
-    Phase2(player, playerOrder, pot);
+    int round = 1;
+    while (playerOrder.size() > 1) {
+        std::cout << "Round " << round << std::endl;
+        Phase1(player, playerOrder, deck);
+        Phase2(player, playerOrder, pot);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
+    }
 }
 
 void FiveCardStudGame(std::string Username) {
@@ -127,10 +141,14 @@ void FiveCardStudGame(std::string Username) {
     while (playerOrder.size() > 1) {
         std::cout << "Round " << round << std::endl;
         fiveCardStudPokerGameRound(player, playerOrder, 5);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
     }
 }
 
 void ChinesePokerGame(std::string Username) {
+
     CLI::clearScreen();
 
     // Initialize players
@@ -164,7 +182,10 @@ void ChinesePokerGame(std::string Username) {
     int round = 1;
     while (playerOrder.size() > 1) {
         std::cout << "Round " << round << std::endl;
-        ChinesePokerGameRound(player, playerOrder);
+        ChineseBlackjackGameRound(player, playerOrder);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
     }
 }
 

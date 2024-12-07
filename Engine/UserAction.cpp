@@ -119,7 +119,6 @@ void User_Action::SignUp(std::string& Username1) {
 	std::string UserName;
 	std::string PassWord;
 	std::string HashedPassWord;
-	bool flag = true;
 	do {
 		std::cout << "Enter your username:" << " ";
 		getline(std::cin, UserName);
@@ -157,12 +156,12 @@ void User_Action::SignUp(std::string& Username1) {
 		std::cout << "Sign up successfully" << std::endl; //Username chua tung duoc luu => khong trung ten
 		User_Data_Storage[UserName] = PassWord;
 		Save_Data(UserName, PassWord);
-		User_Money(UserName, 1000); // 5000 USD mac dinh
+		User_Money(UserName, 1000); // 1000 USD mac dinh
 		//CLI::getEnter();
 		LogIn(Username1);
 		break;
-	} while (true);
 
+	} while (true);
 }
 
 void User_Action::LogIn(std::string& Username1) {
@@ -210,35 +209,38 @@ void User_Action::LogIn(std::string& Username1) {
 }
 
 bool User_Action::Choice(std::string& Username) {
+	// Clear the screen
+	CLI::clearScreen();
 	//Load_Data();
 	//Load_Money();
 	//Load_Data_NumGame();
 	// 3 ham nay tai khi khoi dong game
+	// Print the game title
+	CLI::title();
 	bool CheckInput = false;
-	while (!CheckInput) {
-		std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;
-		std::cout << "1. Sign Up\n";
-		std::cout << "2. Log In\n";
-		std::cout << "3. Exit\n";
-		int action = CLI::getOptionNum(1, 3);
-		if (action == 1) {
-			SignUp(Username);
-			return true;
-		}
-		else if (action == 2) {
-			LogIn(Username);
-			return true;
-		}
-		else if (action == 3) {
-			std::cout << "Thanks for using our game!" << std::endl;
-			return false;
-		}
-		else {
-			std::cout << "Invalid input, please try again " << std::endl;
-			Choice(Username);
-			break;
-		}
+	std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;
+	std::cout << "1. Sign Up\n";
+	std::cout << "2. Log In\n";
+	std::cout << "0. Exit\n";
+	int action = CLI::getOptionNum(0, 2);
+	if (action == 1) {
+		SignUp(Username);
+		return true;
 	}
+	else if (action == 2) {
+		LogIn(Username);
+		return true;
+	}
+	else if (action == 0) {
+		std::cout << "Thanks for using our game!" << std::endl;
+		return false;
+	}
+	else {
+		std::cout << "Invalid input, please try again " << std::endl;
+		Choice(Username);
+		return true;
+	}
+
 }
 
 //Cap nhat so tien nguoi dung va luu lai trong file UserMoney.txt

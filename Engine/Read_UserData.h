@@ -31,6 +31,7 @@ public:
     //void GetPlayerInfo(std::string);
     bool Choice(std::string&);
     void SignUp(std::string&);
+
     void Load_Data();
     void Save_Data(std::string, std::string);
     void LogIn(std::string&);
