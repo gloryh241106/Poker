@@ -16,13 +16,18 @@
 
 void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, const std::vector<int>& cardsToRemove) {
     // Removing cards from player's hand
+    auto& Card = players[orderPlayer].hand.cards;
     std::vector<int> removedCards;
-    for (int card : cardsToRemove) {
-        auto& hand = players[orderPlayer].hand;
-        auto it = std::find(std::begin(hand.cards), std::end(hand.cards), card);
-        if (it != std::end(hand.cards)) {
-            removedCards.push_back(card);
-            hand.erase(card);
+
+    // Loại bỏ các lá bài dựa trên chỉ số trong cardsToRemove
+    for (int i = cardsToRemove.size() - 1; i >= 0; --i) { // Duyệt từ cuối về đầu
+        int index = cardsToRemove[i];
+        if (index >= 0 && index < 5) {
+            removedCards.push_back(Card[index]);
+            players[orderPlayer].hand.erase(Card[index]); // Xóa lá bài bằng chỉ số
+        }
+        else {
+            std::cout << "Invalid index: " << index << " in cardsToRemove, skipping." << std::endl;
         }
     }
 
@@ -55,7 +60,7 @@ void BackTrackingBet(std::vector<Player>& players, std::deque<int>& playerOrder,
             std::cin >> Choose;
 
             // Checking player's choice
-            if (Choose != 1 || Choose != 2 || Choose != 3 || std::cin.fail()) {
+            if (Choose < 1 || Choose > 3 || std::cin.fail()) {
                 std::cout << "Invalid Input, choose from 1 to 3" << std::endl;
                 std::cin.clear();
                 std::cin.ignore(1000, '\n');
@@ -108,7 +113,7 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
         }
 
         // Print the current player's hand
-        std::cout << "Player " << playerOrder.front() << "'s turn " << std::endl;
+        std::cout << "Player " << players[playerOrder.front()].name << "'s turn " << std::endl;
         std::cout << "Your hand: " << players[playerOrder.front()].hand.toString() << std::endl;
 
         // Get the player option
@@ -131,7 +136,7 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
             for (int j = 0; j < number; j++) {
                 int temp = 0;
                 std::cin >> temp;
-                cardsToRemove.push_back(temp); 
+                cardsToRemove.push_back(temp-1); 
             }
 
             // Replacing cards

@@ -22,11 +22,18 @@ extern std::vector<std::pair<double, std::string>> Board;
 
 class User_Action {
 public:
-    void Choice();
-    void SignUp();
+    void WinRateToFile();
+    void NumGameToFile();   
+    void MoneyGameToFile();
+    //void Save_Data_NumGame();
+    void Load_LeaderBoard();
+    void Leader_Board();
+    //void GetPlayerInfo(std::string);
+    bool Choice(std::string&);
+    void SignUp(std::string&);
     void Load_Data();
     void Save_Data(std::string, std::string);
-    void LogIn();
+    void LogIn(std::string&);
     void Load_Money();
     void User_Money(std::string, long long);
     void Update_Money(std::string, long long);

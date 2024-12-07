@@ -6,11 +6,13 @@ std::unordered_map<std::string, int> User_Game_Played;
 std::unordered_map<std::string, int> User_Game_Won;
 std::vector<std::pair<double, std::string>> Board;
 
+
+
 // Tai ten dang nhap va mat khau da duoc luu cua nguoi dung vao chuong trinh
 void User_Action::Load_Data() {
 	std::fstream myFile("data/UserData.txt", std::ios::out | std::ios::app); // Tao file neu chua ton tai file san
 	myFile.close(); // Dong lai file sau khi kiem tra
-	myFile.open("data/UserData.txt", std::ios::in); 
+	myFile.open("data/UserData.txt", std::ios::in);
 	std::string UserName, PassWord;
 	if (myFile.is_open()) {
 		while (myFile >> UserName >> PassWord)
@@ -19,11 +21,34 @@ void User_Action::Load_Data() {
 	}
 	else std::cout << "Trouble in loading user data" << std::endl;
 }
-
+void User_Action::NumGameToFile() {
+	std::fstream myFile;
+	myFile.open("data/UserGamePlayed.txt", std::ios::out);
+	if (myFile.is_open()) {
+		for (auto x : User_Game_Played) {
+			myFile << x.first << std::endl;
+			myFile << x.second << std::endl;
+		}
+		myFile.close();
+	}
+	else std::cout << "Can not open UserData file" << std::endl;
+}
+void User_Action::MoneyGameToFile() {
+	std::fstream myFile;
+	myFile.open("data/UserMoney.txt", std::ios::out);
+	if (myFile.is_open()) {
+		for (auto x : User_Money_Data) {
+			myFile << x.first << std::endl;
+			myFile << x.second << std::endl;
+		}
+		myFile.close();
+	}
+	else std::cout << "Can not open UserData file" << std::endl;
+}
 // Tai so tien cua nguoi dung 
 void User_Action::Load_Money() {
 	std::fstream myFile("data/UserMoney.txt", std::ios::out | std::ios::app);
-	myFile.close(); 
+	myFile.close();
 	myFile.open("data/UserMoney.txt", std::ios::in);
 	std::string UserName;
 	long long Money;
@@ -46,15 +71,15 @@ void User_Action::Save_Data(std::string UserName, std::string PassWord) {
 	}
 	else {
 		char action;
-		std::cout << "Trouble in saving UserData!" << std::endl; 
+		std::cout << "Trouble in saving UserData!" << std::endl;
 		std::cout << "Do you want to sign up again? (Y/N)" << std::endl;
 		do {
 			std::cin >> action;
 			toupper(action);
 			if (action == 'Y')
-				SignUp();
+				SignUp(UserName);
 			else if (action == 'N')
-				Choice();
+				Choice(UserName);
 		} while (action != 'Y' && action != 'N');
 	}
 }
@@ -80,7 +105,17 @@ void User_Action::User_Money(std::string UserName, long long Money) {
 	return ss.str();
 }
 */
-void User_Action::SignUp() {
+
+void User_Action::Leader_Board() {
+	sort(Board.begin(), Board.end());
+	int j = 1;
+	for (auto x : Board) {
+		std::cout << "Ranking " << j << ": " << x.first << " % " << " " << "-" << x.second << std::endl;
+		j++;
+	}
+}
+void User_Action::SignUp(std::string& Username1) {
+	std::cout << "Welcome to sign up" << " " << std::endl;
 	std::string UserName;
 	std::string PassWord;
 	std::string HashedPassWord;
@@ -104,6 +139,7 @@ void User_Action::SignUp() {
 			std::cout << "Username is already available, please try again!" << std::endl;  //Username da tung duoc luu  
 			continue;
 		}
+		Username1 = UserName;
 		std::cout << "Enter your password:" << " ";
 		getline(std::cin, PassWord);
 		if (PassWord.empty()) {
@@ -119,57 +155,65 @@ void User_Action::SignUp() {
 			continue;
 		}
 		std::cout << "Sign up successfully" << std::endl; //Username chua tung duoc luu => khong trung ten
+		User_Data_Storage[UserName] = PassWord;
 		Save_Data(UserName, PassWord);
-		User_Money(UserName, 5000); // 5000 USD mac dinh
-		CLI::getEnter();
+		User_Money(UserName, 1000); // 5000 USD mac dinh
+		//CLI::getEnter();
+		LogIn(Username1);
 		break;
 	} while (true);
 
 }
 
-void User_Action::LogIn() {
+void User_Action::LogIn(std::string& Username1) {
+	std::cout << "Welcome to login" << std::endl;
 	std::string UserName, PassWord;
+
 	while (true) {
-		std::cout << "Enter your UserName" << std::endl;
+		std::cout << "Enter your UserName: ";
 		getline(std::cin, UserName);
-		std::cout << "Enter your PassWord" << std::endl;
+		std::cout << "Enter your PassWord: ";
 		getline(std::cin, PassWord);
+
+		// Check if username and password match stored data
 		if (User_Data_Storage.find(UserName) != User_Data_Storage.end() && User_Data_Storage[UserName] == PassWord) {
-			std::cout << "Log in successfully" << std::endl; //Thong tin nhap trung khop voi thong tin da duoc luu
+			std::cout << "Log in successfully" << std::endl;
+			Username1 = UserName; // Update the reference parameter
 			break;
 		}
 		else {
-		TryAgain :
 			std::cout << "Username or Password is not correct!" << std::endl;
-			std::cout << "Do you want to sign up ? (Y/N)" << std::endl;
+
+			// Offer to sign up or retry
 			char action;
-			std::cin >> action;
-			if (std::cin.fail() || action != 'y' || action != 'Y' || action != 'n' || action != 'N') {
-				std::cout << "Invalid input, please try again" << std::endl;
-				CLI::getEnter();
-				goto TryAgain;
+			while (true) {
+				std::cout << "Do you want to sign up? (Y/N): ";
+				std::cin >> action;
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer
+
+				// Normalize input to uppercase and validate
+				action = toupper(action);
+				if (action == 'Y' || action == 'N') break;
+				std::cout << "Invalid input, please enter 'Y' or 'N'." << std::endl;
 			}
-			toupper(action);
-			do {
-				if (action == 'Y')
-					SignUp();
-				if (action == 'N')
-					Choice();
-			} while (action != 'Y' && action != 'N');
+
+			if (action == 'Y') {
+				SignUp(Username1);
+				break; 
+			}
+			else if (action == 'N') {
+				Choice(Username1);
+				break;
+			}
 		}
 	}
-}	
+}
 
-void User_Action::Choice() {
-	// Loading data to the game
-	Load_Data();
-	Load_Money();
-	Load_Data_NumGame();
-
-	// Print the game title
-	CLI::title();
-
-	// User action
+bool User_Action::Choice(std::string& Username) {
+	//Load_Data();
+	//Load_Money();
+	//Load_Data_NumGame();
+	// 3 ham nay tai khi khoi dong game
 	bool CheckInput = false;
 	while (!CheckInput) {
 		std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;
@@ -178,20 +222,20 @@ void User_Action::Choice() {
 		std::cout << "3. Exit\n";
 		int action = CLI::getOptionNum(1, 3);
 		if (action == 1) {
-			SignUp();
-			CheckInput = true;
+			SignUp(Username);
+			return true;
 		}
 		else if (action == 2) {
-			LogIn();
-			CheckInput = true;
+			LogIn(Username);
+			return true;
 		}
 		else if (action == 3) {
 			std::cout << "Thanks for using our game!" << std::endl;
-			break;
+			return false;
 		}
 		else {
 			std::cout << "Invalid input, please try again " << std::endl;
-			Choice();
+			Choice(Username);
 			break;
 		}
 	}
@@ -217,7 +261,7 @@ void User_Action::Update_Money(std::string UserName, long long MoneyChange) {
 
 //Hien thi so tien nguoi dung
 void User_Action::Display_Money(std::string UserName) {
-	if (User_Money_Data.find(UserName) != User_Money_Data.end()) 
+	if (User_Money_Data.find(UserName) != User_Money_Data.end())
 		std::cout << "Current balance for " << UserName << ":" << User_Money_Data[UserName] << "$" << std::endl;
 	else std::cout << "User not found!" << std::endl;
 }
@@ -234,18 +278,31 @@ double User_Action::Win_Rate(std::string Username) {
 	int GamePlayed = User_Game_Played[Username];
 	if (GamePlayed == 0) return 0.0;
 	return ((Num_Game_Won(Username)) / (Num_Game_Played(Username)));
-} 
-
-void User_Action::Display_Leader_Board(std::string Username) {
-	Board.push_back({Win_Rate(Username), Username});
-	sort(Board.begin(), Board.end());
-	for (auto x : Board)
-		std::cout << x.first << " " << x.second << std::endl;
 }
 
+void User_Action::Load_LeaderBoard() {
+	for (auto x : User_Game_Played)
+		Board.push_back({ Win_Rate(x.first), x.first });
+}
+void User_Action::Display_Leader_Board(std::string Username) {
+
+	Board.push_back({ Win_Rate(Username), Username });
+}
+void User_Action::WinRateToFile() {
+	std::fstream myFile;
+	myFile.open("data/UserWinRate.txt", std::ios::out);
+	if (myFile.is_open()) {
+		for (auto x : Board) {
+			myFile << x.first << std::endl;
+			myFile << x.second << std::endl;
+		}
+		myFile.close();
+	}
+	else std::cout << "Can not open UserWinRate file" << std::endl;
+}
 void User_Action::Load_Data_NumGame() {
-	std::fstream myFile("data/UserGamePlayed.txt", std::ios::out | std::ios::app); 
-	myFile.close(); 
+	std::fstream myFile("data/UserGamePlayed.txt", std::ios::out | std::ios::app);
+	myFile.close();
 	myFile.open("data/UserGamePlayed.txt", std::ios::in);
 	std::string Username;
 	int GamePlayed, GameWon;

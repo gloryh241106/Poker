@@ -10,22 +10,31 @@
 #include "PokerGameplay.h"
 #include "Read_UserData.h"
 
-void StandardPoker() {
+void StandardPoker(std::string Username) {
     CLI::clearScreen();
 
     // Initialize players
     int playerCount = CLI::getPlayerCount();
 
     std::vector<Player> player(playerCount, Player());
-    for (Player& p : player) {
-        p.hand = Hand();
-        p.name = Random::_name();
-        p.chips = 1000;
-        p.bet = 0;
-        p.folded = 0;
-        p.lost = 0;
-        p.allIn = 0;
+    player[0].hand = Hand();
+    player[0].name = Username;
+    player[0].chips = User_Money_Data[Username];
+    player[0].bet = 0;
+    player[0].folded = 0;
+    player[0].lost = 0;
+    player[0].allIn = 0;
+
+    for (size_t i = 1; i < player.size(); ++i) {
+        player[i].hand = Hand();
+        player[i].name = Random::_name();
+        player[i].chips = 1000;
+        player[i].bet = 0;
+        player[i].folded = 0;
+        player[i].lost = 0;
+        player[i].allIn = 0;
     }
+
 
     // Initialize player's order
     std::deque<int> playerOrder;
@@ -36,21 +45,30 @@ void StandardPoker() {
     standardPokerGameRound(player, playerOrder, 5);
 }
 
-void FiveCardDrawGame() {
+void FiveCardDrawGame(std::string Username) {
     CLI::clearScreen();
 
     // Initialize players
     int playerCount = CLI::getPlayerCount();
 
+
     std::vector<Player> player(playerCount, Player());
-    for (Player& p : player) {
-        p.hand = Hand();
-        p.name = Random::_name();
-        p.chips = 1000;
-        p.bet = 0;
-        p.folded = 0;
-        p.lost = 0;
-        p.allIn = 0;
+    player[0].hand = Hand();
+    player[0].name = Username;
+    player[0].chips = User_Money_Data[Username];
+    player[0].bet = 0;
+    player[0].folded = 0;
+    player[0].lost = 0;
+    player[0].allIn = 0;
+
+    for (size_t i = 1; i < player.size(); ++i) {
+        player[i].hand = Hand();
+        player[i].name = Random::_name();
+        player[i].chips = 1000;
+        player[i].bet = 0;
+        player[i].folded = 0;
+        player[i].lost = 0;
+        player[i].allIn = 0;
     }
 
     // Initialize player's order
@@ -69,21 +87,29 @@ void FiveCardDrawGame() {
     Phase2(player, playerOrder, pot);
 }
 
-void FiveCardStudGame() {
+void FiveCardStudGame(std::string Username) {
     CLI::clearScreen();
 
     // Initialize players
     int playerCount = CLI::getPlayerCount();
 
     std::vector<Player> player(playerCount, Player());
-    for (Player& p : player) {
-        p.hand = Hand();
-        p.name = Random::_name();
-        p.chips = 1000;
-        p.bet = 0;
-        p.folded = 0;
-        p.lost = 0;
-        p.allIn = 0;
+    player[0].hand = Hand();
+    player[0].name = Username;
+    player[0].chips = User_Money_Data[Username];
+    player[0].bet = 0;
+    player[0].folded = 0;
+    player[0].lost = 0;
+    player[0].allIn = 0;
+
+    for (size_t i = 1; i < player.size(); ++i) {
+        player[i].hand = Hand();
+        player[i].name = Random::_name();
+        player[i].chips = 1000;
+        player[i].bet = 0;
+        player[i].folded = 0;
+        player[i].lost = 0;
+        player[i].allIn = 0;
     }
 
     // Masking card
@@ -104,21 +130,29 @@ void FiveCardStudGame() {
     }
 }
 
-void ChinesePokerGame() {
+void ChinesePokerGame(std::string Username) {
     CLI::clearScreen();
 
     // Initialize players
     int playerCount = CLI::getPlayerCount();
 
     std::vector<Player> player(playerCount, Player());
-    for (Player& p : player) {
-        p.hand = Hand();
-        p.name = Random::_name();
-        p.chips = 1000;
-        p.bet = 0;
-        p.folded = 0;
-        p.lost = 0;
-        p.allIn = 0;
+    player[0].hand = Hand();
+    player[0].name = Username;
+    player[0].chips = User_Money_Data[Username];
+    player[0].bet = 0;
+    player[0].folded = 0;
+    player[0].lost = 0;
+    player[0].allIn = 0;
+
+    for (size_t i = 1; i < player.size(); ++i) {
+        player[i].hand = Hand();
+        player[i].name = Random::_name();
+        player[i].chips = 1000;
+        player[i].bet = 0;
+        player[i].folded = 0;
+        player[i].lost = 0;
+        player[i].allIn = 0;
     }
 
     // Initialize player's order
@@ -139,26 +173,26 @@ void ExitGame(bool& exited) {
     exited = true;
 }
 
-void GameMode(bool& exited) {
+void GameMode(bool& exited, std::string Username) {
     int userChoice = CLI::getGameMode();
     switch (userChoice) {
-        case 1:
-            StandardPoker();
-            break;
-        case 2:
-            FiveCardDrawGame();
-            break;
-        case 3:
-            FiveCardStudGame();
-            break;
-        case 4:
-            ChinesePokerGame();
-            break;
-        case 0:
-            ExitGame(exited);
-            break;
-        default:
-            CLI::clearScreen();
+    case 1:
+        StandardPoker(Username);
+        break;
+    case 2:
+        FiveCardDrawGame(Username);
+        break;
+    case 3:
+        FiveCardStudGame(Username);
+        break;
+    case 4:
+        ChinesePokerGame(Username);
+        break;
+    case 0:
+        ExitGame(exited);
+        break;
+    default:
+        CLI::clearScreen();
     }
 }
 #endif
