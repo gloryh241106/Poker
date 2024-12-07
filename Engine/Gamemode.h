@@ -3,7 +3,7 @@
 #ifndef GAMEMODE_H
 #define GAMEMODE_H
 
-#include "ChinesePokerGameplay.h"
+#include "ChineseBlackjackGameplay.h"
 #include "CLI.h"
 #include "FiveCardDraw.h"
 #include "Player.h"
@@ -104,7 +104,7 @@ void FiveCardStudGame() {
     }
 }
 
-void ChinesePokerGame() {
+void ChineseBlackjackGame() {
     CLI::clearScreen();
 
     // Initialize players
@@ -130,7 +130,7 @@ void ChinesePokerGame() {
     int round = 1;
     while (playerOrder.size() > 1) {
         std::cout << "Round " << round << std::endl;
-        ChinesePokerGameRound(player, playerOrder);
+        ChineseBlackjackGameRound(player, playerOrder);
     }
 }
 
@@ -152,7 +152,7 @@ void GameMode(bool& exited) {
             FiveCardStudGame();
             break;
         case 4:
-            ChinesePokerGame();
+            ChineseBlackjackGame();
             break;
         case 0:
             ExitGame(exited);

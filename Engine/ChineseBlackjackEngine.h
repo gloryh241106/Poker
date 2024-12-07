@@ -1,5 +1,5 @@
-#ifndef __ChinesePoker_ENGINE__
-#define __ChinesePoker_ENGINE__
+#ifndef __ChineseBlackjack_ENGINE__
+#define __ChineseBlackjack_ENGINE__
 
 #include <algorithm>
 #include <ctime>
@@ -19,9 +19,9 @@
 */
 // Here are the functions to calculate a xi dach hand value
 
-enum ChinesePokerHandType { QUAC = 0, UNDERVALUE, NORMAL, XI_DACH, XI_BAN, NGU_LINH };
+enum ChineseBlackjackHandType { QUAC = 0, UNDERVALUE, NORMAL, XI_DACH, XI_BAN, NGU_LINH };
 
-namespace ChinesePokerEngine {
+namespace ChineseBlackjackEngine {
     // Pair of aces, insta win
     bool isXiBan(const Hand& hand) {
         if (hand.size != 2) return false;
@@ -43,9 +43,9 @@ namespace ChinesePokerEngine {
     }
 
     // Calculate the point and type of a xi dach hand
-    std::pair<int, int> evalChinesePoker(const Hand& hand) {
-        if (isXiBan(hand)) return std::make_pair(ChinesePokerHandType::XI_BAN, 1000000);
-        if (isXiDach(hand)) return std::make_pair(ChinesePokerHandType::XI_DACH, 100000);
+    std::pair<int, int> evalChineseBlackjack(const Hand& hand) {
+        if (isXiBan(hand)) return std::make_pair(ChineseBlackjackHandType::XI_BAN, 1000000);
+        if (isXiDach(hand)) return std::make_pair(ChineseBlackjackHandType::XI_DACH, 100000);
         int total = 0;
         int aces = 0;
         for (int card : hand.cards) {
@@ -73,7 +73,7 @@ namespace ChinesePokerEngine {
         // wins, thus aces should be counted as 1 point for the lowest possible
         // point
         if (hand.size == 5 && (total + aces) <= 21) {
-            return std::make_pair(ChinesePokerHandType::NGU_LINH, total + aces);
+            return std::make_pair(ChineseBlackjackHandType::NGU_LINH, total + aces);
         }
 
         // Aces can be either 1,10 or 11
@@ -120,20 +120,20 @@ namespace ChinesePokerEngine {
                 total += 1;
         }
 
-        if (total < 16) return std::make_pair(ChinesePokerHandType::UNDERVALUE, total);
-        if (total > 21) return std::make_pair(ChinesePokerHandType::QUAC, total);
+        if (total < 16) return std::make_pair(ChineseBlackjackHandType::UNDERVALUE, total);
+        if (total > 21) return std::make_pair(ChineseBlackjackHandType::QUAC, total);
 
-        return std::make_pair(ChinesePokerHandType::NORMAL, total);
+        return std::make_pair(ChineseBlackjackHandType::NORMAL, total);
     }
 
     std::string type(std::pair<int, int> eval) {
-        if (eval.first == ChinesePokerHandType::XI_BAN) return "(Xi Ban)";
-        if (eval.first == ChinesePokerHandType::XI_DACH) return "(Xi Dach)";
-        if (eval.first == ChinesePokerHandType::QUAC) return "(Quac)";
-        if (eval.first == ChinesePokerHandType::NGU_LINH) return "(Ngu linh)";
+        if (eval.first == ChineseBlackjackHandType::XI_BAN) return "(Xi Ban)";
+        if (eval.first == ChineseBlackjackHandType::XI_DACH) return "(Xi Dach)";
+        if (eval.first == ChineseBlackjackHandType::QUAC) return "(Quac)";
+        if (eval.first == ChineseBlackjackHandType::NGU_LINH) return "(Ngu linh)";
         
         return "";
     }
-}  // namespace ChinesePokerEngine
+}  // namespace ChineseBlackjackEngine
 
 #endif
