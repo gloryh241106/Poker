@@ -6,7 +6,7 @@ int main() {
     
     // Log in - Sign Up 
     User_Action User;
-    User.Choice();
+    if(User.Choice() == 0) return 0;
 
     // Get in the game
     bool exited = 0;

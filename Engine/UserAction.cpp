@@ -144,15 +144,18 @@ void User_Action::LogIn() {
 			std::cout << "Do you want to sign up ? (Y/N)" << std::endl;
 			char action;
 			std::cin >> action;
-			if (std::cin.fail() || action != 'y' || action != 'Y' || action != 'n' || action != 'N') {
+			if (std::cin.fail() || (action != 'y' && action != 'Y' && action != 'n' && action != 'N')) {
 				std::cout << "Invalid input, please try again" << std::endl;
+				std::cin.clear(); // Clear the error flag
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard the row
 				CLI::getEnter();
 				goto TryAgain;
 			}
-			toupper(action);
+			action = toupper(action);
+			std::cout << action << std::endl;
 			do {
-				if (action == 'Y')
-					SignUp();
+				if (action == 'Y'){std::cout << "bruh wtf" << std::endl;
+					SignUp();  break;}
 				if (action == 'N')
 					Choice();
 			} while (action != 'Y' && action != 'N');
@@ -160,7 +163,7 @@ void User_Action::LogIn() {
 	}
 }	
 
-void User_Action::Choice() {
+int User_Action::Choice() {
 	// Loading data to the game
 	Load_Data();
 	Load_Money();
@@ -170,29 +173,28 @@ void User_Action::Choice() {
 	CLI::title();
 
 	// User action
-	bool CheckInput = false;
-	while (!CheckInput) {
+	while (true) {
 		std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;
 		std::cout << "1. Sign Up\n";
 		std::cout << "2. Log In\n";
-		std::cout << "3. Exit\n";
-		int action = CLI::getOptionNum(1, 3);
+		std::cout << "0. Exit\n";
+		int action = CLI::getOptionNum(0, 2);
 		if (action == 1) {
 			SignUp();
-			CheckInput = true;
+			return action;
 		}
 		else if (action == 2) {
 			LogIn();
-			CheckInput = true;
+			return action;
 		}
-		else if (action == 3) {
+		else if (action == 0) {
 			std::cout << "Thanks for using our game!" << std::endl;
-			break;
+			return action;
 		}
 		else {
 			std::cout << "Invalid input, please try again " << std::endl;
 			Choice();
-			break;
+			return action;
 		}
 	}
 }

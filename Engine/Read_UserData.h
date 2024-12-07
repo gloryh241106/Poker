@@ -22,7 +22,7 @@ extern std::vector<std::pair<double, std::string>> Board;
 
 class User_Action {
 public:
-    void Choice();
+    int Choice();
     void SignUp();
     void Load_Data();
     void Save_Data(std::string, std::string);
