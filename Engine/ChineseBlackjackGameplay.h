@@ -1,5 +1,5 @@
-#ifndef CHINESEBLACKJACKGAMEPLAY_H
-#define CHINESEBLACKJACKGAMEPLAY_H
+#ifndef CHINESEPOKERGAMEPLAY_H
+#define CHINESEPOKERGAMEPLAY_H
 
 #include "ChineseBlackjackEngine.h"
 #include "CLI.h"
@@ -89,17 +89,18 @@ void ChineseBlackjackGameRound(std::vector<Player>& players, std::deque<int>& pl
     for (int i = 0; i < playerCount; i++) {
         std::cout << "Player " << playerOrder.front()
                   << "'s hand:" << std::endl;
+        std::cout << players[playerOrder.front()].hand.toString() << std::endl;
         for (int j = 0; j < 3; j++) {
-            std::cout << players[playerOrder.front()].hand.toString() << std::endl;
-            std::cout << "Do you want to draw? ";
+            std::cout << "Do you want to draw another card? ";
             bool userChoice = CLI::getOptionYN();
 
             if (!userChoice) break;
             players[playerOrder.front()].hand.add(deck.draw());
             ChineseBlackjackEvals[playerOrder.front()] = ChineseBlackjackEngine::evalChineseBlackjack(players[playerOrder.front()].hand);
+            std::cout << "Player " << playerOrder.front() << "'s hand:" << std::endl;
+            std::cout << players[playerOrder.front()].hand.toString() << std::endl;
+            std::cout << ChineseBlackjackEngine::type(ChineseBlackjackEvals[playerOrder.front()]) << std::endl;
             if (ChineseBlackjackEvals[playerOrder.front()].first == ChineseBlackjackHandType::QUAC) {
-                std::cout << "Player " << playerOrder.front() << "'s hand:" << std::endl;
-                std::cout << players[playerOrder.front()].hand.toString() << std::endl;
                 CLI::getEnter();
                 break;
             }
@@ -132,11 +133,12 @@ void ChineseBlackjackGameRound(std::vector<Player>& players, std::deque<int>& pl
 
     // Divide pot
     std::pair<int, int> best = ChineseBlackjackEvals[playerRank[0]];
+    std::cout << best.first << ' ' << best.second << std::endl;
     int countBest = 1;
     for (int i = 1; i < playerCount; i++) {
         if (ChineseBlackjackEvals[playerRank[i]] == best) countBest++;
     }
-    for (int i = 1; i < playerCount; i++) {
+    for (int i = 0; i < playerCount; i++) {
         if (ChineseBlackjackEvals[playerRank[i]] == best) {
             players[playerRank[i]].chips += pot / countBest;
         }
@@ -159,6 +161,11 @@ void ChineseBlackjackGameRound(std::vector<Player>& players, std::deque<int>& pl
         dequeNext(playerOrder);
         i++;
     }
+
+    // Reset the hands
+    for (int i = 0; i < playerCount; i++) {
+        players[i].hand.clear();
+    }
 }
 
-#endif  // CHINESEBLACKJACKGAMEPLAY_H
+#endif  // CHINESEPOKERGAMEPLAY_H

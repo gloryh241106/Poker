@@ -70,21 +70,12 @@ void User_Action::User_Money(std::string UserName, long long Money) {
 	}
 	else std::cout << "Trouble in saving UserMoney!" << std::endl;
 }
-/* std::string User_Action::HashPassword(std::string password) {
-	unsigned char hash[SHA256_DIGEST_LENGTH]; // Khoi tao mang Hash voi 256 bits
-	SHA256((unsigned char*)password.c_str(), password.size(), hash); // Goi ham ma hoa mat khau co san trong thu vien
-	std::stringstream ss;
-	for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-		ss << hex << setw(2) << setfill('0') << (int)hash[i];    // Chuyen qua he Hex
-	}
-	return ss.str();
-}
-*/
+
+// Ham nay giup nguoi dung dang ki
 void User_Action::SignUp() {
 	std::string UserName;
 	std::string PassWord;
 	std::string HashedPassWord;
-	bool flag = true;
 	do {
 		std::cout << "Enter your username:" << " ";
 		getline(std::cin, UserName);
@@ -122,9 +113,8 @@ void User_Action::SignUp() {
 		Save_Data(UserName, PassWord);
 		User_Money(UserName, 5000); // 5000 USD mac dinh
 		CLI::getEnter();
-		break;
+		return;
 	} while (true);
-
 }
 
 void User_Action::LogIn() {
@@ -136,7 +126,7 @@ void User_Action::LogIn() {
 		getline(std::cin, PassWord);
 		if (User_Data_Storage.find(UserName) != User_Data_Storage.end() && User_Data_Storage[UserName] == PassWord) {
 			std::cout << "Log in successfully" << std::endl; //Thong tin nhap trung khop voi thong tin da duoc luu
-			break;
+			return;
 		}
 		else {
 		TryAgain :
@@ -144,23 +134,34 @@ void User_Action::LogIn() {
 			std::cout << "Do you want to sign up ? (Y/N)" << std::endl;
 			char action;
 			std::cin >> action;
-			if (std::cin.fail() || action != 'y' || action != 'Y' || action != 'n' || action != 'N') {
+			if (std::cin.fail() || (action != 'y' && action != 'Y' && action != 'n' && action != 'N')) {
 				std::cout << "Invalid input, please try again" << std::endl;
+				std::cin.clear(); // Clear the error flag
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard the row
 				CLI::getEnter();
 				goto TryAgain;
 			}
-			toupper(action);
+			action = toupper(action);
+			std::cout << action << std::endl;
 			do {
-				if (action == 'Y')
-					SignUp();
-				if (action == 'N')
+				if (action == 'Y'){
+					std::cout << "bruh wtf" << std::endl;
+					SignUp();  
+					break;
+				}
+				else if (action == 'N') {
 					Choice();
+					return;
+				}
 			} while (action != 'Y' && action != 'N');
 		}
 	}
 }	
 
-void User_Action::Choice() {
+int User_Action::Choice() {
+	// Clear the screen
+	CLI::clearScreen();
+
 	// Loading data to the game
 	Load_Data();
 	Load_Money();
@@ -170,31 +171,26 @@ void User_Action::Choice() {
 	CLI::title();
 
 	// User action
-	bool CheckInput = false;
-	while (!CheckInput) {
-		std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;
-		std::cout << "1. Sign Up\n";
-		std::cout << "2. Log In\n";
-		std::cout << "3. Exit\n";
-		int action = CLI::getOptionNum(1, 3);
-		if (action == 1) {
-			SignUp();
-			CheckInput = true;
-		}
-		else if (action == 2) {
-			LogIn();
-			CheckInput = true;
-		}
-		else if (action == 3) {
-			std::cout << "Thanks for using our game!" << std::endl;
-			break;
-		}
-		else {
-			std::cout << "Invalid input, please try again " << std::endl;
-			Choice();
-			break;
-		}
+	std::cout << std::endl << "Welcome to the game! Please choose an option: " << std::endl;
+	std::cout << "1. Sign Up\n";
+	std::cout << "2. Log In\n";
+	std::cout << "0. Exit\n";
+	int action = CLI::getOptionNum(0, 2);
+	if (action == 1) {
+		SignUp();
 	}
+	else if (action == 2) {
+		LogIn();
+	}
+	else if (action == 0) {
+		std::cout << "Thanks for using our game!" << std::endl;
+	}
+	else {
+		std::cout << "Invalid input, please try again " << std::endl;
+		Choice();
+	}
+
+	return action;
 }
 
 //Cap nhat so tien nguoi dung va luu lai trong file UserMoney.txt

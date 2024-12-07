@@ -94,7 +94,7 @@ namespace CLI {
 
     /// @brief This function will print the game tutorial
     inline void printTutorial() {
-        std::cout << "Here goes tutorial\n\n";
+        std::cout << "Read tutorial in the document.\n\n";
         std::cout << "Press Enter to go back...";
         std::cin.ignore(std::numeric_limits<int>::max(), '\n');
     }
@@ -104,6 +104,7 @@ namespace CLI {
     inline int getMainOption() {
         std::cout << "Main menu:\n\n";
         std::cout << "1. New game\n";
+        std::cout << "2. Tutorial\n";
         std::cout << "0. Exit\n\n";
         std::cout << "Choose an option by pressing a number ";
 
