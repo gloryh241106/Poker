@@ -125,7 +125,7 @@ int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder
 
             // Skip players who have folded
             if (players[playerOrder.front()].folded) {
-                // dequeNext(playerOrder);
+                dequeNext(playerOrder);
                 continue;
             }
 
@@ -133,7 +133,7 @@ int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder
             if (isFiveCardStud) {
                 CLI::clearScreen();
                 for (int i : playerOrder) {
-                    std::cout << "Player's " << i + 1
+                    std::cout << "Player's " << i
                               << " hand: " << players[i].hand.toString(1)
                               << std::endl;
                 }
@@ -144,8 +144,11 @@ int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder
             std::cout << "\n\n";
             std::cout << "Player " << playerOrder.front()
                       << "'s turn " << std::endl;
-            std::cout << "Your hand: "
-                      << players[playerOrder.front()].hand.toString() << std::endl;
+            std::cout << "Your hand: ";
+            if (isFiveCardStud) {
+               std::cout << players[playerOrder.front()].hand.toString(1) << std::endl;
+            } 
+            else std::cout << players[playerOrder.front()].hand.toString() << std::endl;
             std::cout << "Your remaining chips: " 
                       << players[playerOrder.front()].chips << std::endl;
             std::cout << "You bet: " 
@@ -307,7 +310,7 @@ void showdown(std::vector<Player>& players, std::deque<int>& playerOrder, int& p
 
     // Display the chips
     for (int j = 0; j < playerCount; j++) {
-        std::cout << "Player " << j + 1 << " has " << players[j].chips << " chips" << std::endl;
+        std::cout << "Player " << j << " has " << players[j].chips << " chips" << std::endl;
     }
 
     // Remove lost players
@@ -476,7 +479,7 @@ void standardPokerGameRound(std::vector<Player>& player, std::deque<int>& player
     CLI::clearScreen();
     std::cout << "Betting" << std::endl;
     CLI::sleep(1000);
-    int lastPlayer = studPokerBetRound(player, playerOrder, blind, 1, pot, 0);
+    int lastPlayer = studPokerBetRound(player, playerOrder, blind, 0, pot, 0);
 
     // Player wins because everyone else folded
     if (lastPlayer != -1) {
