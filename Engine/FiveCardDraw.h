@@ -93,6 +93,9 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
                 cardsToRemove.push_back(temp-1); 
             }
 
+            // Ignore \n
+            std::cin.ignore(std::numeric_limits<int>::max(), '\n');
+
             // Replacing cards
             replaceCards(players, i, deck, cardsToRemove);
         }
