@@ -30,10 +30,11 @@ void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, con
             std::cout << "Invalid index: " << index << " in cardsToRemove, skipping." << std::endl;
         }
     }
-
+    for (auto x : removedCards)
+        std::cout << "DEBUG" << x << " " << std::endl;
     // Add removed card to deck
     for (int card : removedCards) {
-        deck.addCard(card, removedCards.size());
+        deck.addCard(card, removedCards.size(), players.size());
     }
 
     // Shuffle deck
@@ -90,7 +91,7 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
             for (int j = 0; j < number; j++) {
                 int temp = 0;
                 std::cin >> temp;
-                cardsToRemove.push_back(temp-1); 
+                cardsToRemove.push_back(temp); 
             }
 
             // Replacing cards

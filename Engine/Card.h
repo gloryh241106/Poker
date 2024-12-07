@@ -30,8 +30,8 @@ enum Rank {
     ACE
 };
 
-std::string suitStringLookup[] = {"\6", "\5", "\4", "\3" };
-std::string rankStringLookup[] = {"2", "3",  "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+std::string suitStringLookup[] = { "\6", "\5", "\4", "\3" };
+std::string rankStringLookup[] = { "2", "3",  "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
 
 int getCardRank(int card) {
     return card == -1 ? -1 : card >> 2;  // card / 4
@@ -61,7 +61,7 @@ public:
         for (int i = 0; i < 52; i++) {
             deck[i] = i;
         }
-        
+
         // Shuffle the deck
         std::shuffle(deck, deck + 52, Random::globalRNG);
     }
@@ -77,8 +77,8 @@ public:
         deckBit &= ~(1ll << deck[deckTop]);
         deckTop--;
     }
-    void addCard(int card, int Size) {
-        int i = 52;
+    void addCard(int card, int Size, int NumPlayer) {
+        int i = 51 - NumPlayer* 5;
         deck[i - Size] = card;
         i++;
     }
