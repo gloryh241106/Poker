@@ -145,7 +145,6 @@ void User_Action::LogIn() {
 			std::cout << action << std::endl;
 			do {
 				if (action == 'Y'){
-					std::cout << "bruh wtf" << std::endl;
 					SignUp();  
 					break;
 				}
