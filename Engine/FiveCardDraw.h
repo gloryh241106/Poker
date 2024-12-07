@@ -16,7 +16,7 @@
 
 void replaceCards(std::vector<Player>& players, int orderPlayer, Deck& deck, const std::vector<int>& cardsToRemove) {
     // Removing cards from player's hand
-    auto& Card = players[orderPlayer].hand.cards;
+    auto Card = players[orderPlayer].hand.cards;
     std::vector<int> removedCards;
 
     // Loại bỏ các lá bài dựa trên chỉ số trong cardsToRemove
@@ -102,6 +102,7 @@ void Phase1(std::vector<Player>& players, std::deque<int>& playerOrder, Deck& de
         std::cout << "You have finished your turn. It's time for another player...";
         CLI::sleep(5000);
         CLI::clearScreen();
+        CLI::sleep(2000);
     }
 }
 

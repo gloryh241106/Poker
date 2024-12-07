@@ -50,16 +50,17 @@ public:
     
     void erase(int card) {
         int index = -1;
-        int size1 = 5;
-        for (int i = 0; i < size1; i++)
+        for (int i = 0; i < size; i++)
             if (cards[i] == card)
                 index = i;
 
         if (index == -1)
             std::cout << "Can not find your card" << std::endl;
-        for (int i = index; i < size1 - 1; i++)
-            cards[i] = cards[i + 1];
-        size1--;
+        else {
+            for (int i = index; i < size - 1; i++)
+                cards[i] = cards[i + 1];
+            size--;
+        }
     }
 
     void setMask(uint8_t mask) { cardMask = mask; }
