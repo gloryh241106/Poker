@@ -1,12 +1,12 @@
 #ifndef CHINESEPOKERGAMEPLAY_H
 #define CHINESEPOKERGAMEPLAY_H
 
-#include "ChinesePokerEngine.h"
+#include "ChineseBlackjackEngine.h"
 #include "CLI.h"
 #include "Player.h"
 #include "deque_helper.h"
 
-void ChinesePokerGameRound(std::vector<Player>& players, std::deque<int>& playerOrder) {
+void ChineseBlackjackGameRound(std::vector<Player>& players, std::deque<int>& playerOrder) {
     int playerCount = playerOrder.size();
 
     // Increase bet if fewer player left
@@ -33,7 +33,7 @@ void ChinesePokerGameRound(std::vector<Player>& players, std::deque<int>& player
 
     // Eval
     for (int i = 0; i < playerCount; i++) {
-        chinesePokerEvals[playerOrder.front()] = ChinesePokerEngine::evalChinesePoker(players[playerOrder.front()].hand);
+        chinesePokerEvals[playerOrder.front()] = ChineseBlackjackEngine::evalChineseBlackjack(players[playerOrder.front()].hand);
         dequeNext(playerOrder);
     }
 
@@ -43,9 +43,9 @@ void ChinesePokerGameRound(std::vector<Player>& players, std::deque<int>& player
 
     // Pre evaluation
     for (int i = 0; i < playerCount; i++) {
-        if (chinesePokerEvals[playerOrder.front()].first == ChinesePokerHandType::XI_BAN)
+        if (chinesePokerEvals[playerOrder.front()].first == ChineseBlackjackHandType::XI_BAN)
             xiBanCount++;
-        else if (chinesePokerEvals[playerOrder.front()].first == ChinesePokerHandType::XI_DACH)
+        else if (chinesePokerEvals[playerOrder.front()].first == ChineseBlackjackHandType::XI_DACH)
             xiDachCount++;
         dequeNext(playerOrder);
     }
@@ -54,11 +54,11 @@ void ChinesePokerGameRound(std::vector<Player>& players, std::deque<int>& player
     if (xiBanCount) {
         for (int i = 0; i < playerCount; i++) {
             if (chinesePokerEvals[playerOrder.front()].first ==
-                ChinesePokerHandType::XI_BAN) {
+                ChineseBlackjackHandType::XI_BAN) {
                 std::cout << "Player " << playerOrder.front() << " wins."
                           << std::endl;
                 std::cout << players[playerOrder.front()].hand.toString()
-                          << ChinesePokerEngine::type(chinesePokerEvals[playerOrder.front()])
+                          << ChineseBlackjackEngine::type(chinesePokerEvals[playerOrder.front()])
                           << std::endl;
                 players[playerOrder.front()].chips += pot / xiBanCount;
             }
@@ -71,11 +71,11 @@ void ChinesePokerGameRound(std::vector<Player>& players, std::deque<int>& player
     // Xi dach insta-win
     if (xiDachCount) {
         for (int i = 0; i < playerCount; i++) {
-            if (chinesePokerEvals[playerOrder.front()].first == ChinesePokerHandType::XI_DACH) {
+            if (chinesePokerEvals[playerOrder.front()].first == ChineseBlackjackHandType::XI_DACH) {
                 std::cout << "Player " << playerOrder.front() << " wins."
                           << std::endl;
                 std::cout << players[playerOrder.front()].hand.toString()
-                          << ChinesePokerEngine::type(chinesePokerEvals[playerOrder.front()])
+                          << ChineseBlackjackEngine::type(chinesePokerEvals[playerOrder.front()])
                           << std::endl;
                 players[playerOrder.front()].chips += pot / xiDachCount;
             }
@@ -96,8 +96,8 @@ void ChinesePokerGameRound(std::vector<Player>& players, std::deque<int>& player
 
             if (!userChoice) break;
             players[playerOrder.front()].hand.add(deck.draw());
-            chinesePokerEvals[playerOrder.front()] = ChinesePokerEngine::evalChinesePoker(players[playerOrder.front()].hand);
-            if (chinesePokerEvals[playerOrder.front()].first == ChinesePokerHandType::QUAC) {
+            chinesePokerEvals[playerOrder.front()] = ChineseBlackjackEngine::evalChineseBlackjack(players[playerOrder.front()].hand);
+            if (chinesePokerEvals[playerOrder.front()].first == ChineseBlackjackHandType::QUAC) {
                 std::cout << "Player " << playerOrder.front() << "'s hand:" << std::endl;
                 std::cout << players[playerOrder.front()].hand.toString() << std::endl;
                 CLI::getEnter();
@@ -126,7 +126,7 @@ void ChinesePokerGameRound(std::vector<Player>& players, std::deque<int>& player
         if (players[playerRank[i]].folded) continue;
         std::cout << "Player " << playerRank[i]
                   << "'s hand: " << players[playerRank[i]].hand.toString() << ' '
-                  << ChinesePokerEngine::type(chinesePokerEvals[playerRank[i]])
+                  << ChineseBlackjackEngine::type(chinesePokerEvals[playerRank[i]])
                   << std::endl;
     }
 
