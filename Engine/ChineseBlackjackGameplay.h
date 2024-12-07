@@ -133,7 +133,9 @@ void ChineseBlackjackGameRound(std::vector<Player>& players, std::deque<int>& pl
 
     // Divide pot
     std::pair<int, int> best = ChineseBlackjackEvals[playerRank[0]];
-    std::cout << best.first << ' ' << best.second << std::endl;
+    std::cout << "1st player's score: ";
+    std::cout << best.first << std::endl;
+    std::cout << "Score of the hand: " << best.second << std::endl;
     int countBest = 1;
     for (int i = 1; i < playerCount; i++) {
         if (ChineseBlackjackEvals[playerRank[i]] == best) countBest++;
