@@ -153,10 +153,14 @@ int studPokerBetRound(std::vector<Player>& players, std::deque<int>& playerOrder
             CLI::sleep(1000);
             // Print the player hand for betting
             std::cout << "\n\n";
-            std::cout << "Player " << players[playerOrder.front()].name
-                << "'s turn " << std::endl;
-            std::cout << "Your hand: "
-                << players[playerOrder.front()].hand.toString() << std::endl;
+            std::cout << "Player " << players[playerOrder.front()].name << "'s turn " << std::endl;
+            if (isFiveCardStud) {
+                std::cout << "Your hand: " << players[playerOrder.front()].hand.toString(1) << std::endl;
+            }
+            else {
+                std::cout << "Your hand: " << players[playerOrder.front()].hand.toString() << std::endl;
+            }
+            
             std::cout << "Your remaining chips: "
                 << players[playerOrder.front()].chips << std::endl;
             std::cout << "You bet: "
@@ -314,6 +318,7 @@ void showdown(std::vector<Player>& players, std::deque<int>& playerOrder, int& p
     std::vector<int> temp;
     for (int i = 0; i < playerCount; i++)
         temp.push_back(User_Game_Won[players[i].name]);
+        
     // Distribute the pot
     int i = 0;
     while (i < playerCount && pot > 0) {
