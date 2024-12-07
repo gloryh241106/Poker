@@ -118,7 +118,7 @@ namespace CLI {
         std::cout << "1. Standard Poker\n";
         std::cout << "2. Five Card Draw Poker\n";
         std::cout << "3. Five Card Stud Poker\n";
-        std::cout << "4. Chinese Poker\n\n";
+        std::cout << "4. Chinese Blackjack\n\n";
         std::cout << "Choose an option by pressing a number: ";
 
         return getOptionNum(1, 4);

@@ -33,7 +33,14 @@ void StandardPoker() {
         playerOrder.push_back(i);
     }
 
-    standardPokerGameRound(player, playerOrder, 5);
+    int round = 1;
+    while (playerOrder.size() > 1) {
+        std::cout << "Round " << round << std::endl;
+        standardPokerGameRound(player, playerOrder, 5);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
+    }
 }
 
 void FiveCardDrawGame() {
@@ -65,8 +72,15 @@ void FiveCardDrawGame() {
     int pot = 0;
     // int dealerIndex = 0;
 
-    Phase1(player, playerOrder, deck);
-    Phase2(player, playerOrder, pot);
+    int round = 1;
+    while (playerOrder.size() > 1) {
+        std::cout << "Round " << round << std::endl;
+        Phase1(player, playerOrder, deck);
+        Phase2(player, playerOrder, pot);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
+    }
 }
 
 void FiveCardStudGame() {
@@ -101,6 +115,9 @@ void FiveCardStudGame() {
     while (playerOrder.size() > 1) {
         std::cout << "Round " << round << std::endl;
         fiveCardStudPokerGameRound(player, playerOrder, 5);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
     }
 }
 
@@ -131,6 +148,9 @@ void ChineseBlackjackGame() {
     while (playerOrder.size() > 1) {
         std::cout << "Round " << round << std::endl;
         ChineseBlackjackGameRound(player, playerOrder);
+        round++;
+        std::cout << "Do you want to play another round? ";
+        if (!CLI::getOptionYN()) break;
     }
 }
 
