@@ -7,7 +7,6 @@ std::unordered_map<std::string, int> User_Game_Won;
 std::vector<std::pair<double, std::string>> Board;
 
 
-
 // Tai ten dang nhap va mat khau da duoc luu cua nguoi dung vao chuong trinh
 void User_Action::Load_Data() {
 	std::fstream myFile("data/UserData.txt", std::ios::out | std::ios::app); // Tao file neu chua ton tai file san
@@ -95,16 +94,6 @@ void User_Action::User_Money(std::string UserName, long long Money) {
 	}
 	else std::cout << "Trouble in saving UserMoney!" << std::endl;
 }
-/* std::string User_Action::HashPassword(std::string password) {
-	unsigned char hash[SHA256_DIGEST_LENGTH]; // Khoi tao mang Hash voi 256 bits
-	SHA256((unsigned char*)password.c_str(), password.size(), hash); // Goi ham ma hoa mat khau co san trong thu vien
-	std::stringstream ss;
-	for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-		ss << hex << setw(2) << setfill('0') << (int)hash[i];    // Chuyen qua he Hex
-	}
-	return ss.str();
-}
-*/
 
 void User_Action::Leader_Board() {
 	sort(Board.begin(), Board.end());
